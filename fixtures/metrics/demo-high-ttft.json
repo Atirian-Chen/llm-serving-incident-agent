@@ -1,0 +1,10 @@
+{
+  "service_id": "demo-high-ttft",
+  "gpu_memory_utilization": 0.78,
+  "waiting_requests": 64,
+  "ttft_p95_ms": 1850,
+  "prefix_cache_hit_rate": 0.42,
+  "request_success_rate": 0.995,
+  "kv_cache_free_blocks": 320
+}
+

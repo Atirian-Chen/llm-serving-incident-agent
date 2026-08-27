@@ -1,0 +1,10 @@
+{
+  "service_id": "demo-unknown",
+  "gpu_memory_utilization": 0.56,
+  "waiting_requests": 2,
+  "ttft_p95_ms": 210,
+  "prefix_cache_hit_rate": 0.67,
+  "request_success_rate": 0.999,
+  "kv_cache_free_blocks": 700
+}
+

@@ -1,0 +1,10 @@
+{
+  "service_id": "demo-prefix-cache",
+  "gpu_memory_utilization": 0.71,
+  "waiting_requests": 5,
+  "ttft_p95_ms": 420,
+  "prefix_cache_hit_rate": 0.04,
+  "request_success_rate": 0.998,
+  "kv_cache_free_blocks": 512
+}
+

@@ -1,0 +1,10 @@
+{
+  "service_id": "demo-oom",
+  "gpu_memory_utilization": 0.97,
+  "waiting_requests": 18,
+  "ttft_p95_ms": 920,
+  "prefix_cache_hit_rate": 0.05,
+  "request_success_rate": 0.81,
+  "kv_cache_free_blocks": 12
+}
+

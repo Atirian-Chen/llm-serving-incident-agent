@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-serving-incident-agent"
+version = "0.1.0"
+description = "A minimal LangGraph + MCP + RAG agent for diagnosing LLM serving incidents."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn[standard]>=0.30,<1",
+  "pydantic>=2.8,<3",
+  "langgraph>=0.2,<1",
+  "langchain-core>=0.3,<1",
+  "langchain-openai>=0.2,<1",
+  "mcp>=1.2,<2",
+  "httpx>=0.27,<1",
+  "python-dotenv>=1,<2",
+]
+
+[project.optional-dependencies]
+rag = [
+  "chromadb>=0.5,<1",
+  "sentence-transformers>=3,<4",
+]
+tracing = ["langsmith>=0.1,<1"]
+dev = ["pytest>=8,<9", "pytest-asyncio>=0.24,<1"]
+all = [
+  "chromadb>=0.5,<1",
+  "sentence-transformers>=3,<4",
+  "langsmith>=0.1,<1",
+  "pytest>=8,<9",
+  "pytest-asyncio>=0.24,<1",
+]
+
+[project.scripts]
+incident-api = "incident_agent.api:main"
+incident-mcp-server = "incident_agent.mcp_server.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
