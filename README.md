@@ -19,7 +19,7 @@ python -m venv .venv
 python -m pip install -e ".[all]"
 ```
 
-没有安装依赖时，核心离线逻辑也可以直接运行：
+不需要真实模型或 API Key 时，可以使用确定性的离线模型运行评测：
 
 ```powershell
 $env:PYTHONPATH = "src"
@@ -118,4 +118,3 @@ tests/               # 自动化测试
 ## 简历使用规则
 
 这是一个可运行的学习项目，但简历中的案例数、准确率、延迟和“提升”必须以你实际执行后的结果为准。没有真实运行前，不要填写虚构百分比，也不要把可选的 BGE/Chroma 或云 Trace 写成已经使用。
-

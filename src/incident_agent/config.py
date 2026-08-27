@@ -4,6 +4,13 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:  # pragma: no cover - optional during dependency-free inspection
+    pass
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -23,4 +30,3 @@ class Settings:
 
 
 settings = Settings()
-
