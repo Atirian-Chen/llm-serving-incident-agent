@@ -8,4 +8,4 @@ __pycache__/
 data/*.jsonl
 data/*.json
 *.log
-
+*.egg-info/
