@@ -3,9 +3,31 @@ from __future__ import annotations
 import json
 import os
 import time
+from contextvars import ContextVar
+from contextlib import contextmanager
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator
+
+
+_active_trace: ContextVar[tuple["TraceRecorder", str] | None] = ContextVar("active_trace", default=None)
+
+
+@contextmanager
+def trace_context(recorder: "TraceRecorder", run_id: str):
+    """Make model-level raw messages traceable without mutable shared state."""
+    token = _active_trace.set((recorder, run_id))
+    try:
+        yield
+    finally:
+        _active_trace.reset(token)
+
+
+def record_current_trace(name: str, payload: dict[str, Any]) -> None:
+    current = _active_trace.get()
+    if current is not None:
+        recorder, run_id = current
+        recorder.event(run_id, name, payload)
 
 
 class TraceRecorder:
@@ -52,4 +74,3 @@ class TraceRecorder:
                 f"{name}.end",
                 {"duration_ms": round((time.perf_counter() - started) * 1000, 2)},
             )
-

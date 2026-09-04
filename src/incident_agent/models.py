@@ -6,6 +6,7 @@ from typing import Any, Protocol
 
 from .config import DeepSeekSettings, LLMConfigurationError, load_deepseek_settings
 from .schemas import IncidentReport, IncidentRequest, ToolCall
+from .tracing import record_current_trace
 
 
 class LLMUnavailableError(RuntimeError):
@@ -16,6 +17,9 @@ class LLMUnavailableError(RuntimeError):
 class ModelDecision:
     tool_calls: list[ToolCall] = field(default_factory=list)
     text: str = ""
+    # Serializable message snapshots are kept for incident replay and interviews.
+    request_messages: list[dict[str, Any]] = field(default_factory=list)
+    response_message: dict[str, Any] | None = None
 
 
 class AgentModel(Protocol):
@@ -104,6 +108,22 @@ class DeepSeekModel:
             raise LLMUnavailableError(f"LLM unavailable: failed to initialize DeepSeek: {exc}") from exc
 
     @staticmethod
+    def _message_dict(message: Any) -> dict[str, Any]:
+        if hasattr(message, "model_dump"):
+            try:
+                return message.model_dump(mode="json")
+            except Exception:
+                pass
+        data: dict[str, Any] = {}
+        for key in ("type", "role", "content", "name", "tool_calls", "additional_kwargs", "response_metadata"):
+            value = getattr(message, key, None)
+            if value is not None:
+                if key == "tool_calls" and isinstance(value, list):
+                    value = [item.model_dump(mode="json") if hasattr(item, "model_dump") else item for item in value]
+                data[key] = value
+        return data
+
+    @staticmethod
     def _json_context(
         request: IncidentRequest,
         retrieved_docs: list[dict[str, Any]],
@@ -153,24 +173,36 @@ class DeepSeekModel:
         try:
             from langchain_core.messages import HumanMessage, SystemMessage  # type: ignore
 
-            response = await self._tool_llm.ainvoke(
-                [
-                    SystemMessage(content=self.SYSTEM_PROMPT),
-                    HumanMessage(
-                        content=self._json_context(
-                            request,
-                            retrieved_docs,
-                            tool_results,
-                            "选择必要的只读工具。已有足够证据时不要再调用工具。",
-                        )
-                    ),
-                ]
+            messages = [
+                SystemMessage(content=self.SYSTEM_PROMPT),
+                HumanMessage(
+                    content=self._json_context(
+                        request,
+                        retrieved_docs,
+                        tool_results,
+                        "选择必要的只读工具。已有足够证据时不要再调用工具。",
+                    )
+                ),
+            ]
+            record_current_trace(
+                "llm.raw_request",
+                {"phase": "tool_selection", "messages": [self._message_dict(item) for item in messages]},
+            )
+            response = await self._tool_llm.ainvoke(messages)
+            record_current_trace(
+                "llm.raw_response",
+                {"phase": "tool_selection", "message": self._message_dict(response)},
             )
             calls = [
                 self._normalize_tool_call(request, call)
                 for call in (getattr(response, "tool_calls", None) or [])
             ]
-            return ModelDecision(tool_calls=calls, text=str(getattr(response, "content", "")))
+            return ModelDecision(
+                tool_calls=calls,
+                text=str(getattr(response, "content", "")),
+                request_messages=[self._message_dict(item) for item in messages],
+                response_message=self._message_dict(response),
+            )
         except LLMUnavailableError:
             raise
         except Exception as exc:
@@ -186,20 +218,42 @@ class DeepSeekModel:
         try:
             from langchain_core.messages import HumanMessage, SystemMessage  # type: ignore
 
+            # ``json_mode`` enforces valid JSON but does not transmit the
+            # Pydantic schema to every OpenAI-compatible provider.  DeepSeek
+            # can otherwise invent a semantically similar report shape, so
+            # include the exact contract in the prompt as well.
+            schema = json.dumps(IncidentReport.model_json_schema(), ensure_ascii=False)
             prompt = self._json_context(
                 request,
                 retrieved_docs,
                 tool_results,
-                "输出 IncidentReport JSON。evidence 必须引用实际工具或文档来源，不能编造指标、日志或操作结果。"
+                "严格按照下面的 IncidentReport JSON Schema 输出一个对象，只允许 schema 中的字段，"
+                "不要输出 service_id、symptom、status、supporting_evidence 或其他额外字段。"
+                "incident_type 只能是 cuda_oom、high_ttft、low_prefix_cache_hit、unknown；"
+                "severity 只能是 low、medium、high。evidence 必须引用实际工具或文档来源，"
+                "不能编造指标、日志或操作结果。\nJSON Schema："
+                + schema
                 + f"\n模型草稿：{draft_text}",
             )
-            result = await self._structured_llm.ainvoke(
-                [
-                    SystemMessage(content=self.SYSTEM_PROMPT),
-                    HumanMessage(content=prompt),
-                ]
+            messages = [SystemMessage(content=self.SYSTEM_PROMPT), HumanMessage(content=prompt)]
+            record_current_trace(
+                "llm.raw_request",
+                {"phase": "final_user_response", "messages": [self._message_dict(item) for item in messages]},
             )
-            return result if isinstance(result, IncidentReport) else IncidentReport.model_validate(result)
+            result = await self._structured_llm.ainvoke(messages)
+            record_current_trace(
+                "llm.raw_response",
+                {"phase": "final_user_response", "message": self._message_dict(result)},
+            )
+            report = result if isinstance(result, IncidentReport) else IncidentReport.model_validate(result)
+            # This field describes execution, so derive it from the tool
+            # results rather than trusting a model-generated list.
+            actual_tools = [
+                str(item["name"])
+                for item in tool_results
+                if item.get("name") in {"get_metrics_snapshot", "search_logs"}
+            ]
+            return report.model_copy(update={"tools_used": actual_tools})
         except Exception as exc:
             raise LLMUnavailableError(f"LLM unavailable: DeepSeek structured output failed: {exc}") from exc
 

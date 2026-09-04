@@ -10,7 +10,7 @@ from .mcp_client import MCPToolClient
 from .models import AgentModel, LLMUnavailableError, ModelDecision, build_model
 from .rag import build_retriever
 from .schemas import IncidentReport, IncidentRequest, ToolCall
-from .tracing import TraceRecorder
+from .tracing import TraceRecorder, trace_context
 
 try:
     from langgraph.graph import END, START, StateGraph  # type: ignore
@@ -50,10 +50,15 @@ class DiagnosisEngine:
             raise LLMUnavailableError(
                 "LLM unavailable: install project dependencies with pip install -e ."
             )
+        self.tracer = tracer or TraceRecorder()
         self.retriever = retriever or build_retriever()
+        # HybridRetriever emits stage-level candidates through this recorder.
+        # Inject it automatically so normal graph construction preserves the
+        # same retrieval trace as explicit test/example wiring.
+        if hasattr(self.retriever, "tracer") and getattr(self.retriever, "tracer", None) is None:
+            self.retriever.tracer = self.tracer
         self.model = model or build_model()
         self.tool_client = tool_client or MCPToolClient()
-        self.tracer = tracer or TraceRecorder()
         self.max_steps = max_steps or settings.max_agent_steps
         self.tool_timeout = tool_timeout or settings.tool_timeout_seconds
         # MemorySaver makes each run addressable by ``run_id`` and demonstrates
@@ -85,17 +90,42 @@ class DiagnosisEngine:
     async def retrieve_runbook(self, state: DiagnosisState) -> dict[str, Any]:
         request = state["request"]
         run_id = state.get("run_id", "unknown")
+        if hasattr(self.retriever, "set_trace_context"):
+            self.retriever.set_trace_context(run_id)
         async with self.tracer.span(run_id, "rag.retrieve", {"query": request.symptom}):
-            docs = await self.retriever.ainvoke(request.symptom, k=4)
+            docs = await self.retriever.ainvoke(request.symptom, k=settings.rag_final_top_k)
+        self.tracer.event(run_id, "rag.final_results", {"query": request.symptom, "results": docs})
         return {"retrieved_docs": docs}
 
     async def agent_reason(self, state: DiagnosisState) -> dict[str, Any]:
         run_id = state.get("run_id", "unknown")
         decision: ModelDecision
         async with self.tracer.span(run_id, "model.decide", {"step": state.get("step_count", 0)}):
-            decision = await self.model.decide(
-                state["request"], state.get("retrieved_docs", []), state.get("tool_results", [])
-            )
+            with trace_context(self.tracer, run_id):
+                decision = await self.model.decide(
+                    state["request"], state.get("retrieved_docs", []), state.get("tool_results", [])
+                )
+        self.tracer.event(
+            run_id,
+            "llm.request",
+            {
+                "phase": "tool_selection",
+                "messages": getattr(decision, "request_messages", []),
+                "request": state["request"].model_dump(mode="json"),
+                "retrieved_docs": state.get("retrieved_docs", []),
+                "tool_results": state.get("tool_results", []),
+            },
+        )
+        self.tracer.event(
+            run_id,
+            "llm.response",
+            {
+                "phase": "tool_selection",
+                "message": getattr(decision, "response_message", None),
+                "text": decision.text,
+                "tool_calls": [call.model_dump(mode="json") for call in decision.tool_calls],
+            },
+        )
         step_count = state.get("step_count", 0) + 1
         calls = decision.tool_calls if step_count <= self.max_steps else []
         return {"pending_tool_calls": calls, "draft_text": decision.text, "step_count": step_count}
@@ -113,6 +143,20 @@ class DiagnosisEngine:
                         call.name, call.arguments, timeout=self.tool_timeout
                     )
                     previous.append({"name": call.name, "arguments": call.arguments, "result": result})
+                    self.tracer.event(
+                        run_id,
+                        "mcp.tool_result",
+                        {
+                            "name": call.name,
+                            "arguments": call.arguments,
+                            "result": result,
+                            "tool_message": {
+                                "role": "tool",
+                                "name": call.name,
+                                "content": result,
+                            },
+                        },
+                    )
                 except Exception as exc:
                     # A failed evidence query must stop the run. Passing an
                     # empty result back to the model would allow it to invent
@@ -125,12 +169,25 @@ class DiagnosisEngine:
     async def finalize_report(self, state: DiagnosisState) -> dict[str, Any]:
         run_id = state.get("run_id", "unknown")
         async with self.tracer.span(run_id, "structured_output", {}):
-            report = await self.model.finalize(
-                state["request"],
-                state.get("retrieved_docs", []),
-                state.get("tool_results", []),
-                state.get("draft_text", ""),
-            )
+            with trace_context(self.tracer, run_id):
+                report = await self.model.finalize(
+                    state["request"],
+                    state.get("retrieved_docs", []),
+                    state.get("tool_results", []),
+                    state.get("draft_text", ""),
+                )
+        self.tracer.event(
+            run_id,
+            "llm.final_response",
+            {
+                "phase": "final_user_response",
+                "request": state["request"].model_dump(mode="json"),
+                "retrieved_docs": state.get("retrieved_docs", []),
+                "tool_results": state.get("tool_results", []),
+                "draft_text": state.get("draft_text", ""),
+                "response": report.model_dump(mode="json") if hasattr(report, "model_dump") else report,
+            },
+        )
         return {"final_report": IncidentReport.model_validate(report)}
 
     async def diagnose(self, request: IncidentRequest | dict[str, Any]) -> IncidentReport:
@@ -146,7 +203,15 @@ class DiagnosisEngine:
             "run_id": run_id,
         }
         started = time.perf_counter()
-        self.tracer.event(run_id, "agent.start", {"service_id": parsed.service_id})
+        self.tracer.event(
+            run_id,
+            "agent.start",
+            {
+                "request": parsed.model_dump(mode="json"),
+                "service_id": parsed.service_id,
+                "symptom": parsed.symptom,
+            },
+        )
         config = {"configurable": {"thread_id": run_id}}
         result = await asyncio.wait_for(
             self._compiled_graph.ainvoke(initial, config=config),

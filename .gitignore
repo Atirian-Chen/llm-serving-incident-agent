@@ -3,11 +3,16 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.venv-standard/
+.runtime/
+.pytest-tmp/
 .env
 config/llm.toml
 .chroma/
+data/chroma/
 data/*.jsonl
 data/*.json
+data/online_evaluation_review.md
 *.log
 !fixtures/logs/*.log
 *.egg-info/

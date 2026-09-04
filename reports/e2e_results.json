@@ -1,0 +1,4520 @@
+{
+  "metrics": {
+    "evaluation_mode": "online_deepseek",
+    "total_cases": 30,
+    "completed_cases": 30,
+    "successful_cases": 30,
+    "failed_cases": 0,
+    "incident_type_accuracy": 1.0,
+    "tool_selection_accuracy": 1.0,
+    "schema_success_rate": 1.0,
+    "evidence_term_coverage": 1.0,
+    "average_latency_ms_all_completed": 46276.210666666666,
+    "p95_latency_ms_all_completed": 90918.42,
+    "average_latency_ms_successful": 46276.210666666666,
+    "p95_latency_ms_successful": 90918.42
+  },
+  "cases": [
+    {
+      "index": 1,
+      "case_id": "oom-01",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "服务出现 CUDA out of memory，显存接近满载。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization",
+          "out of memory"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization",
+        "out of memory"
+      ],
+      "evidence_terms_covered": 2,
+      "evidence_terms_total": 2,
+      "latency_ms": 33437.19,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 1053.78
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 755.61
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "日志确认 CUDA out of memory 发生在 KV Cache 分配阶段；同时 GPU 利用率达 0.97、KV Cache 空闲块仅剩 12、请求成功率 0.81，表明峰值时可供 KV Cache 分配的显存容量不足。prefix_cache_hit_rate=0.05 使请求难以复用已有 KV Cache，进一步放大了峰值显存需求。",
+        "evidence": [
+          {
+            "source": "search_logs('demo-oom', 'CUDA out of memory')",
+            "detail": "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          },
+          {
+            "source": "get_metrics_snapshot('demo-oom')",
+            "detail": "gpu_memory_utilization=0.97; request_success_rate=0.81; kv_cache_free_blocks=12; waiting_requests=18; ttft_p95_ms=920; prefix_cache_hit_rate=0.05"
+          },
+          {
+            "source": "runbook: cuda_oom.md",
+            "detail": "常见信号包括：日志出现 CUDA out of memory 或 OutOfMemoryError；gpu_memory_utilization 接近 1.0，部分请求失败。"
+          },
+          {
+            "source": "runbook: gpu_memory.md",
+            "detail": "可能根因包括：GPU memory utilization 长时间接近上限，权重、激活、KV Cache 与 CUDA Graph 共同占用显存。"
+          }
+        ],
+        "recommended_actions": [
+          "逐步降低 max_num_seqs 或 max_model_len，观察显存利用率和请求成功率变化。",
+          "重新核算权重、激活、KV Cache 与 CUDA Graph 的显存预算，优先保障 KV Cache 可用容量。",
+          "排查 prefix_cache_hit_rate=0.05 过低的原因，提升前缀复用以降低 KV Cache 峰值需求。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "confidence": 0.93
+      }
+    },
+    {
+      "index": 2,
+      "case_id": "oom-02",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "请求失败并提示 OOM，请分析显存问题。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 44467.36,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 759.55
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OOM",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100",
+            "2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"
+          ],
+          "latency_ms": 786.6
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 729.27
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "显存接近耗尽（gpu_memory_utilization=0.97），可用 KV cache blocks 仅剩 12 个；新请求在执行 KV cache 分配时触发 CUDA out of memory，进而返回 code=CUDA_OOM 的请求失败。日志中的 \"CUDA out of memory while allocating KV cache\" 与指标 kv_cache_free_blocks=12、request_success_rate=0.81 相符，且低 prefix_cache_hit_rate（0.05）放大了每次请求的 KV 分配压力。",
+        "evidence": [
+          {
+            "source": "search_logs(service_id=demo-oom, keyword=\"CUDA out of memory\")",
+            "detail": "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          },
+          {
+            "source": "search_logs(service_id=demo-oom, keyword=\"OOM\")",
+            "detail": "2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100; 2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"
+          },
+          {
+            "source": "get_metrics_snapshot(service_id=demo-oom)",
+            "detail": "gpu_memory_utilization=0.97, kv_cache_free_blocks=12, request_success_rate=0.81, waiting_requests=18, ttft_p95_ms=920, prefix_cache_hit_rate=0.05"
+          },
+          {
+            "source": "cuda_oom.md / 常见信号",
+            "detail": "日志出现 CUDA out of memory 或 OutOfMemoryError，且 gpu_memory_utilization 接近 1.0 时会有请求失败；本次日志和 utilization=0.97 均符合该信号。"
+          },
+          {
+            "source": "kv_cache_capacity.md / 常见信号",
+            "detail": "显存未完全占满但可用 KV blocks 不足时，长上下文请求会触发分配失败或频繁 eviction；本次 kv_cache_free_blocks=12 说明 KV blocks 已严重不足。"
+          },
+          {
+            "source": "gpu_memory.md / 建议动作",
+            "detail": "需同时结合显存、请求长度/并发、KV Cache 与错误日志判断；当前证据同时覆盖 GPU utilization、KV cache free blocks、OOM 日志及排队指标。"
+          }
+        ],
+        "recommended_actions": [
+          "在显存接近上限时限制并发/排队请求，或预留更大的 GPU memory 余量，降低 KV cache 分配时的瞬时压力。",
+          "排查 prefix_cache_hit_rate 仅 0.05 的原因并提升前缀缓存复用，减少每次请求重新分配完整 KV cache 的需求。",
+          "对已失败并自动重试的请求（日志显示 retry scheduled）增加重试退避或并发限制，避免二次显存冲击。",
+          "对长上下文请求增加准入控制或 batch 内配额，防止一次性大额 KV 分配挤占仅剩的 12 个 free blocks。",
+          "持续监控 gpu_memory_utilization、kv_cache_free_blocks 和 request_success_rate，在 free blocks 下降阶段提前介入以避免 OOM。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.97
+      }
+    },
+    {
+      "index": 3,
+      "case_id": "oom-03",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "KV Cache 分配失败，推理服务拒绝请求。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "kv_cache"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "kv_cache"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 25029.03,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 716.85
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OutOfMemoryError",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 717.41
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 741.52
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "kv cache",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache",
+            "2026-08-27T09:00:04Z WARN kv cache free blocks=12"
+          ],
+          "latency_ms": 735.22
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "GPU 显存利用率接近饱和（0.97），KV cache 可用块仅剩 12 个；同时前缀缓存命中率极低（0.05），新请求需要大量分配 KV blocks，最终触发 'CUDA out of memory while allocating KV cache'，导致推理服务拒绝请求，请求成功率降至 0.81 并出现队列积压。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot: demo-oom",
+            "detail": "gpu_memory_utilization=0.97，kv_cache_free_blocks=12，request_success_rate=0.81，waiting_requests=18，ttft_p95_ms=920，prefix_cache_hit_rate=0.05"
+          },
+          {
+            "source": "search_logs: demo-oom keyword='CUDA out of memory'",
+            "detail": "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          },
+          {
+            "source": "search_logs: demo-oom keyword='kv cache'",
+            "detail": "2026-08-27T09:00:04Z WARN kv cache free blocks=12，与指标中 kv_cache_free_blocks=12 一致"
+          },
+          {
+            "source": "cuda_oom.md 常见信号",
+            "detail": "日志出现 CUDA out of memory，gpu_memory_utilization 接近 1.0 且部分请求失败，与本案例吻合"
+          },
+          {
+            "source": "kv_cache_capacity.md 常见信号",
+            "detail": "显存未完全占满但可用 KV blocks 不足时可导致分配失败，本案例中 kv_cache_free_blocks=12，长上下文请求触发分配失败"
+          }
+        ],
+        "recommended_actions": [
+          "立即扩容 GPU 显存或增加推理实例，缓解显存和 KV cache 容量压力",
+          "限制并发请求数和最大上下文长度，避免突发长请求耗尽 KV cache",
+          "调低 gpu_memory_utilization 预留安全余量，或启用/优化 PagedAttention 等动态 KV cache 管理机制",
+          "优化前缀缓存命中率（如提升 prefix_cache_hit_rate），降低重复 KV 分配开销",
+          "设置告警：当 kv_cache_free_blocks 低于阈值或 gpu_memory_utilization 超过 0.9 时提前干预"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.93
+      }
+    },
+    {
+      "index": 4,
+      "case_id": "oom-04",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "显存 97%，部分请求失败。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 21916.76,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 703.88
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OutOfMemoryError",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 716.28
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 728.1
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "GPU 显存利用率接近上限，KV Cache 可用块仅剩 12 个，日志显示 CUDA out of memory while allocating KV cache，导致部分请求在 KV cache 分配阶段失败。前缀缓存命中率极低（0.05）进一步加剧了新的 KV 分配压力。",
+        "evidence": [
+          {
+            "source": "runbook:cuda_oom.md",
+            "detail": "日志出现 CUDA out of memory 或 OutOfMemoryError；gpu_memory_utilization 接近 1.0，部分请求失败。"
+          },
+          {
+            "source": "runbook:kv_cache_capacity.md",
+            "detail": "显存尚未完全占满但可用 KV blocks 不足；长上下文请求触发分配失败或频繁 eviction。"
+          },
+          {
+            "source": "get_metrics_snapshot:demo-oom",
+            "detail": "gpu_memory_utilization=0.97，kv_cache_free_blocks=12，request_success_rate=0.81。"
+          },
+          {
+            "source": "search_logs:demo-oom keyword=CUDA out of memory",
+            "detail": "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          }
+        ],
+        "recommended_actions": [
+          "降低并发请求数或等待队列长度以减少同时分配 KV cache 的压力",
+          "对长上下文请求进行长度限制或拆分，避免单个请求占用过多 KV cache",
+          "评估调低 gpu_memory_utilization 预留比例或升级显存/增加节点",
+          "优化前缀复用（prefix cache）以降低低 prefix_cache_hit_rate（0.05）带来的重复分配开销",
+          "联动监控显存时序、KV cache 分配/驱逐日志和请求特征后再做变更"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.95
+      }
+    },
+    {
+      "index": 5,
+      "case_id": "oom-05",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "日志中有 CUDA out of memory。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "out of memory"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "out of memory"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 44654.23,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 743.05
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 728.74
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OutOfMemoryError",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 710.38
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "GPU 显存不足导致 KV Cache 分配失败，出现 CUDA OutOfMemoryError。关键证据：日志明确 'CUDA out of memory while allocating KV cache'，指标显示 GPU 显存利用率达 0.97、KV Cache 空闲块仅 12，大量 prefill 请求（等待 18、前缀命中率 0.05）加剧了 KV Cache 争用。",
+        "evidence": [
+          {
+            "source": "search_logs",
+            "detail": "日志检索到 '2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache'；同时检索 'OutOfMemoryError' 无结果。"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.97, request_success_rate=0.81, kv_cache_free_blocks=12, waiting_requests=18, ttft_p95_ms=920, prefix_cache_hit_rate=0.05"
+          },
+          {
+            "source": "cuda_oom.md",
+            "detail": "常见信号：日志出现 CUDA out of memory、gpu_memory_utilization 接近 1.0、部分请求失败，与观测一致。"
+          },
+          {
+            "source": "gpu_memory.md",
+            "detail": "排障手册要求同时采集显存、请求长度、并发、KV Cache 与错误日志，避免只凭单一指标判定；本次指标覆盖了这些类别。"
+          }
+        ],
+        "recommended_actions": [
+          "保留现有指标和日志证据，然后逐步降低 max_num_seqs 或 max_model_len，以降低峰值 KV Cache 分配压力。",
+          "检查模型权重、KV Cache 与 CUDA Graph 的显存预算，并评估为 KV Cache 预留更多空间。",
+          "观察低前缀命中率对 prefill 的影响，评估是否启用或优化 prefix caching，减少重复 prefill 造成的 KV Cache 竞争。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.95
+      }
+    },
+    {
+      "index": 6,
+      "case_id": "oom-06",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "GPU memory utilization 接近 1，请排查。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 45414.08,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 747.35
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 827.88
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OutOfMemoryError",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 812.42
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "分配 KV cache 时发生 CUDA out of memory（日志：2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache）。gpu_memory_utilization=0.97、kv_cache_free_blocks=12，显示显存/KV cache 已近耗尽；request_success_rate=0.81 表示部分请求失败，与 cuda_oom.md 中描述的信号一致。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "service_id=demo-oom: gpu_memory_utilization=0.97, waiting_requests=18, ttft_p95_ms=920, prefix_cache_hit_rate=0.05, request_success_rate=0.81, kv_cache_free_blocks=12"
+          },
+          {
+            "source": "search_logs",
+            "detail": "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          },
+          {
+            "source": "cuda_oom.md",
+            "detail": "手册“常见信号”指出日志出现 CUDA out of memory / OutOfMemoryError、gpu_memory_utilization 接近 1.0 且部分请求失败，与本次观测吻合；未搜索到 OutOfMemoryError 关键字不构成矛盾。"
+          }
+        ],
+        "recommended_actions": [
+          "评估并降低 max_num_seqs/在线并发，避免 KV cache 分配峰值超过显存上限。",
+          "检查 KV cache 容量/预留配置（如 paged KV cache 参数或 GPU 显存容量），增加空闲 block 余量。",
+          "限制或调度 prefill（如 max_num_batched_tokens 调整或 P/D 分离），降低排队与 TTFT。",
+          "设置 kv_cache_free_blocks 低水位告警并在触发时自动限流/重试。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.92
+      }
+    },
+    {
+      "index": 7,
+      "case_id": "oom-07",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "max_num_seqs 增大后服务频繁 OOM。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 45593.26,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 786.1
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OOM",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100",
+            "2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"
+          ],
+          "latency_ms": 791.58
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 807.12
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "调大 max_num_seqs 后单批并发序列上限增加，批处理瞬时需要预留更多 KV cache/显存，超出可用预算导致 CUDA OOM；当前 GPU 显存利用率 0.97、可用 KV blocks 仅 12，日志确认 code=CUDA_OOM。未见 scheduler queue 日志，因此不判定为到达率超载等排队类根因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.97, kv_cache_free_blocks=12, request_success_rate=0.81, waiting_requests=18, ttft_p95_ms=920, prefix_cache_hit_rate=0.05"
+          },
+          {
+            "source": "search_logs (keyword=OOM)",
+            "detail": "2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100；2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"
+          },
+          {
+            "source": "search_logs (keyword=scheduler queue)",
+            "detail": "未找到包含 'scheduler queue' 的日志，缺少到达率/批处理积压的直接证据"
+          },
+          {
+            "source": "cuda_oom.md",
+            "detail": "可能根因包括 max_model_len 或 max_num_seqs 过大，KV Cache 预算不足，批处理瞬时占用过高"
+          },
+          {
+            "source": "kv_cache_capacity.md",
+            "detail": "可用 KV blocks 不足时会出现分配失败或频繁 eviction；本次可用 blocks 仅 12"
+          }
+        ],
+        "recommended_actions": [
+          "将 max_num_seqs 回退到 OOM 出现前的安全值，并在预发环境验证恢复",
+          "按典型请求长度和可用 GPU 显存重新计算 KV cache 可容纳的最大并发序列数，设置有安全余量的并发上限",
+          "对 gpu_memory_utilization 和 kv_cache_free_blocks 设置持续告警，当可用 KV blocks 低于阈值时触发限流或拒绝新请求",
+          "为 OOM 引发的请求重试增加退避机制，避免重试集中叠加导致显存压力进一步放大",
+          "评估提升 prefix_cache_hit_rate（当前 0.05），以降低 prefill 和 KV cache 分配压力"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "index": 8,
+      "case_id": "oom-08",
+      "input": {
+        "service_id": "demo-oom",
+        "symptom": "请求失败，怀疑 KV Cache 容量不足。"
+      },
+      "expected": {
+        "incident_type": "cuda_oom",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "kv_cache"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "kv_cache"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 25274.73,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-oom"
+          },
+          "output": {
+            "service_id": "demo-oom",
+            "gpu_memory_utilization": 0.97,
+            "waiting_requests": 18,
+            "ttft_p95_ms": 920,
+            "prefix_cache_hit_rate": 0.05,
+            "request_success_rate": 0.81,
+            "kv_cache_free_blocks": 12
+          },
+          "latency_ms": 749.98
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "CUDA out of memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"
+          ],
+          "latency_ms": 703.54
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "OutOfMemoryError",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 725.8
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-oom",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 722.22
+        }
+      ],
+      "output": {
+        "incident_type": "cuda_oom",
+        "severity": "high",
+        "root_cause": "KV Cache 容量/预算不足：GPU 显存利用率高达0.97且空闲KV cache块仅12，分配KV cache时直接触发CUDA out of memory，导致约19%请求失败（request_success_rate=0.81），符合排障手册中cuda_oom与kv_cache_capacity的信号。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.97，接近1.0"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "kv_cache_free_blocks=12，可用KV cache块极低"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "request_success_rate=0.81，部分请求失败"
+          },
+          {
+            "source": "search_logs",
+            "detail": "日志命中 'CUDA out of memory while allocating KV cache'（2026-08-27T09:00:02Z ERROR）"
+          },
+          {
+            "source": "runbook/cuda_oom.md",
+            "detail": "常见信号包含 gpu_memory_utilization 接近1.0且部分请求失败；可能根因包含 KV Cache 预算不足及批处理瞬时占用过高"
+          },
+          {
+            "source": "runbook/kv_cache_capacity.md",
+            "detail": "常见信号为可用KV blocks不足并出现分配失败，与本次指标及日志匹配"
+          }
+        ],
+        "recommended_actions": [
+          "检查并调大 KV cache budget 或调整 gpu_memory_utilization 预留策略，避免显存预算耗尽",
+          "排查 max_model_len 与 max_num_seqs 是否过大，并结合长上下文请求与并发进行限流/排队优化",
+          "监控 kv_cache_free_blocks，接近0时及时扩容或降负",
+          "评估量化、block size、prefix-cache保留策略是否适合当前流量，必要时减少批处理瞬时KV占用"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.92
+      }
+    },
+    {
+      "index": 9,
+      "case_id": "ttft-01",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "TTFT P95 达到 1850ms，等待队列很长。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "ttft_p95_ms",
+          "scheduler"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "ttft_p95_ms",
+        "scheduler"
+      ],
+      "evidence_terms_covered": 2,
+      "evidence_terms_total": 2,
+      "latency_ms": 29469.19,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 742.44
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 709.07
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching delay",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 737.75
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill backlog",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 784.03
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "medium",
+        "root_cause": "Prefill阶段排队/过载导致TTFT显著升高。日志显示prefill backlog queue_time_ms=1700，与TTFT P95=1850ms在量级上吻合，说明排队主要由prefill阶段引起；等待队列有64个请求，且无batching delay日志。GPU内存利用率为0.78、KV cache仍有空闲块，可排除显存或KV cache容量瓶颈。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot(demo-high-ttft)",
+            "detail": "ttft_p95_ms=1850，waiting_requests=64，gpu_memory_utilization=0.78，kv_cache_free_blocks=320，prefix_cache_hit_rate=0.42，request_success_rate=0.995。"
+          },
+          {
+            "source": "search_logs(demo-high-ttft, scheduler queue)",
+            "detail": "WARN scheduler queue waiting_requests=64（2026-08-27T09:10:01Z）。"
+          },
+          {
+            "source": "search_logs(demo-high-ttft, prefill backlog)",
+            "detail": "WARN prefill backlog queue_time_ms=1700（2026-08-27T09:10:02Z）。"
+          },
+          {
+            "source": "search_logs(demo-high-ttft, batching delay)",
+            "detail": "未检索到batching delay相关日志。"
+          },
+          {
+            "source": "runbook: high_ttft.md / scheduler_queue.md",
+            "detail": "TTFT P95持续超过服务目标且等待队列增长时，需检查scheduler queue/prefill backlog；建议区分prefill和decode的排队时间，并调整并发/批处理参数。"
+          }
+        ],
+        "recommended_actions": [
+          "统计prefill与decode阶段的排队耗时，确认本次排队集中在prefill阶段后，调整并发参数（如max_num_seqs与请求长度的匹配），避免长请求挤占调度窗口。",
+          "以固定负载回归测试吞吐、TTFT和P95的联合变化，验证参数调整效果。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.85
+      }
+    },
+    {
+      "index": 10,
+      "case_id": "ttft-02",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "首 token 延迟变高，scheduler queue backlog。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "waiting_requests"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "waiting_requests"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 36569.8,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 714.69
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 797.11
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill backlog",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 732.64
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "medium",
+        "root_cause": "prefill 阶段出现排队积压导致首 token 延迟升高；日志显示 prefill backlog 约 1700ms，同时 waiting_requests=64；KV cache 与请求成功率仍正常，因此热点在 prefill 的调度/批处理而非显存或错误率。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "ttft_p95_ms=1850, waiting_requests=64, request_success_rate=0.995, prefix_cache_hit_rate=0.42, kv_cache_free_blocks=320"
+          },
+          {
+            "source": "search_logs | keyword='scheduler queue'",
+            "detail": "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          },
+          {
+            "source": "search_logs | keyword='prefill backlog'",
+            "detail": "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          },
+          {
+            "source": "scheduler_queue.md",
+            "detail": "waiting requests 持续增长，TTFT P95 同步变差；日志出现 scheduler queue timeout 或 batch waiting"
+          },
+          {
+            "source": "high_ttft.md",
+            "detail": "ttft_p95_ms 持续超过服务目标，等待队列增长；日志包含 scheduler queue、batching delay 或 prefill backlog"
+          }
+        ],
+        "recommended_actions": [
+          "优先降低 prefill 排队时间，可调整 prefill 并发与批处理（如增大 batch、启用 chunked prefill）",
+          "提高 prefix cache 命中率（当前 0.42），减少 prefill 计算量",
+          "在固定负载下测试吞吐、TTFT 与 P95 的联合变化，验证优化效果",
+          "持续监控 waiting_requests 与 TTFT P95 趋势，确认 backlog 是否收敛"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.8
+      }
+    },
+    {
+      "index": 11,
+      "case_id": "ttft-03",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "大量请求排队但错误率正常。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "waiting_requests"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "waiting_requests"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 60449.93,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 806.37
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 775.75
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64",
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 796.88
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "high",
+        "root_cause": "Prefill/调度 backlog 导致高 TTFT：日志显示 scheduler queue waiting_requests=64 与 prefill backlog queue_time_ms=1700，TTFT P95 为 1850ms；GPU 显存利用率 0.78、KV cache 仍有 320 个空闲块，表明不是显存/OOM；错误率约 0.5% 且错误日志为空，因此以性能/容量瓶颈为主。缺少请求长度分布、max_num_seqs 和吞吐数据，无法确认具体调度配置诱因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "waiting_requests=64，ttft_p95_ms=1850，request_success_rate=0.995，gpu_memory_utilization=0.78，kv_cache_free_blocks=320，prefix_cache_hit_rate=0.42"
+          },
+          {
+            "source": "search_logs",
+            "detail": "搜索 queue 返回：2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64；2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          },
+          {
+            "source": "search_logs",
+            "detail": "搜索 error 返回空，无错误日志"
+          },
+          {
+            "source": "high_ttft.md",
+            "detail": "手册列出：Prefill 阶段过载，max_num_seqs 与请求长度不匹配；调度器等待批次或 GPU 利用率达到瓶颈。"
+          }
+        ],
+        "recommended_actions": [
+          "调查 prefill 调度 backlog，结合请求长度分布和并发核对 max_num_seqs 是否过小或与请求长度不匹配。",
+          "若确认 prefill 过载，与负责人评估扩大 prefill 容量/优化批调度或对超长请求限流。",
+          "持续观察 TTFT P95、waiting_requests、queue_time_ms、GPU 利用率与 KV cache 空闲块，验证排队收敛。",
+          "在测试环境复现相同输入长度与并发，验证调整方案后再实施生产变更。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.85
+      }
+    },
+    {
+      "index": 12,
+      "case_id": "ttft-04",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "prefill backlog 导致延迟升高。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "ttft_p95_ms"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "ttft_p95_ms"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 36080.46,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 785.13
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill backlog",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 780.94
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 753.03
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching delay",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 687.07
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "medium",
+        "root_cause": "Prefill scheduling backlog is directly confirmed: logs show scheduler queue waiting_requests=64 and prefill backlog queue_time_ms=1700, while ttft_p95_ms is 1850ms. The low prefix_cache_hit_rate of 0.42 indicates that many requests cannot reuse prompt prefixes, which increases repeated prefill work and is an associated contributing factor. GPU memory and KV cache remain plentiful, so cuda_oom is not evidenced.",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "ttft_p95_ms=1850, waiting_requests=64, prefix_cache_hit_rate=0.42, gpu_memory_utilization=0.78, kv_cache_free_blocks=320, request_success_rate=0.995"
+          },
+          {
+            "source": "search_logs: prefill backlog",
+            "detail": "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          },
+          {
+            "source": "search_logs: scheduler queue",
+            "detail": "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          },
+          {
+            "source": "high_ttft.md",
+            "detail": "Signals include ttft_p95_ms sustained beyond target and growing wait queue; observed metrics and logs match these signals."
+          },
+          {
+            "source": "prefix_cache.md",
+            "detail": "Low prefix cache hit may indicate dynamic fields in shared prefix or cache key inconsistency, which can increase prefill work and pressure the scheduler."
+          }
+        ],
+        "recommended_actions": [
+          "Investigate prefix cache configuration: check for dynamic fields inside shared prompt prefixes and route/tokenizer cache key consistency, since prefix_cache_hit_rate is 0.42.",
+          "Assess prefill scheduling capacity: waiting_requests=64 and prefill queue_time_ms=1700 show a backlog; evaluate batching policy, rate limiting, or prefill resource scaling.",
+          "Monitor the TTFT P95 trend against its SLO; request_success_rate=0.995 indicates no systemic failure, so prioritize planned capacity actions rather than emergency intervention.",
+          "Keep gpu_memory_utilization and kv_cache_free_blocks under observation in case the prefill backlog triggers memory pressure later."
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.75
+      }
+    },
+    {
+      "index": 13,
+      "case_id": "ttft-05",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "TTFT 超过服务目标，请诊断。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "ttft_p95_ms"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "ttft_p95_ms"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 31852.2,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 721.29
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 733.45
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 716.94
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching delay",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 686.76
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "medium",
+        "root_cause": "到达率/并发超过服务 prefill 处理能力，请求在调度阶段排队形成 scheduler queue 与 prefill backlog，导致 TTFT p95 超目标；显存与 KV Cache 空闲充足、请求成功率正常，排除显存不足和系统性错误。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "ttft_p95_ms=1850，超过服务目标；waiting_requests=64，等待队列增长。"
+          },
+          {
+            "source": "search_logs(service_id=demo-high-ttft, keyword='scheduler queue')",
+            "detail": "日志 2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64。"
+          },
+          {
+            "source": "search_logs(service_id=demo-high-ttft, keyword='prefill')",
+            "detail": "日志 2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700。"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.78，kv_cache_free_blocks=320，排除显存/OOM 瓶颈。"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "request_success_rate=0.995，prefix_cache_hit_rate=0.42；否定了系统错误为主因，命中率非本次直接原因。"
+          },
+          {
+            "source": "runbook high_ttft.md",
+            "detail": "TTFT 超目标、等待队列增长、日志含 scheduler queue/prefill backlog，与观测证据一致。"
+          },
+          {
+            "source": "runbook scheduler_queue.md",
+            "detail": "到达率超过服务处理能力、调度批次大小/并发上限与流量突增不匹配可能造成排队，与证据相符。"
+          }
+        ],
+        "recommended_actions": [
+          "按当前到达率/并发评估并扩容 prefill 处理能力或临时限流，缓解调度队列积压。",
+          "核对调度批次大小、并发上限/最大等待请求数是否与流量突增匹配，必要时调整容量上限。",
+          "优化 prefix cache 命中率（当前 0.42）以降低 prefill 计算量，但该措施优先级低于直接匹配处理能力。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.92
+      }
+    },
+    {
+      "index": 14,
+      "case_id": "ttft-06",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "服务 queue time 很高，P95 latency 变差。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "waiting_requests"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "waiting_requests"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 52032.97,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 751.45
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 737.22
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batch waiting",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 749.04
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "timeout",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 738.98
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill backlog",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 702.26
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "arrival",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 713.73
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching delay",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 756.33
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "high",
+        "root_cause": "服务当前处于 scheduler/prefill 积压状态：等待队列有 64 个请求，日志中出现 scheduler queue 告警，且 prefill backlog 显示 queue_time_ms=1700ms，直接导致 queue time 很高并将 TTFT P95 拉高到 1850ms。现有指标和日志不足以进一步确认更深层根因是到达率超过服务处理能力还是调度批次/并发参数不匹配，因此该部分按 unknown 处理。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot: demo-high-ttft",
+            "detail": "waiting_requests=64，ttft_p95_ms=1850，存在队列积压且 TTFT P95 偏高，符合 scheduler_queue/high_ttft 的常见信号。"
+          },
+          {
+            "source": "get_metrics_snapshot: demo-high-ttft",
+            "detail": "request_success_rate=0.995，gpu_memory_utilization=0.78，kv_cache_free_blocks=320，不支持请求被丢弃、GPU OOM 或 KV cache 耗尽作为主因。"
+          },
+          {
+            "source": "search_logs: scheduler queue",
+            "detail": "日志出现 WARN scheduler queue waiting_requests=64，确认 scheduler 队列出现积压。"
+          },
+          {
+            "source": "search_logs: prefill backlog",
+            "detail": "日志出现 WARN prefill backlog queue_time_ms=1700，确认 prefill 阶段存在明显 backlog，是 queue time 高的直接来源。"
+          },
+          {
+            "source": "search_logs: batch waiting",
+            "detail": "搜索 batch waiting 无结果，未发现对应日志，排除该常见信号。"
+          },
+          {
+            "source": "search_logs: arrival",
+            "detail": "搜索 arrival 无结果，缺少到达率证据，无法据此判断是否是流量突增导致。"
+          }
+        ],
+        "recommended_actions": [
+          "按 high_ttft runbook 对 TTFT、queue time、prefill time 做分段观测，确认延迟主要堆积在 prefill/scheduler 阶段。",
+          "复核调度批次大小和并发上限是否与当前负载匹配，并使用固定流量回归 P95 以观察是否复现。",
+          "补充到达率/RPS 与等待队列的时间序列数据，以区分流量突增和调度参数不匹配两类根因。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.75
+      }
+    },
+    {
+      "index": 15,
+      "case_id": "ttft-07",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "batch 等待时间过长，首 token 很慢。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "ttft_p95_ms"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "ttft_p95_ms"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 40945.48,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 796.31
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 778.56
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill",
+            "limit": 10
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 818.42
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching delay",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 755.95
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "high",
+        "root_cause": "Prefill 阶段 backlog 过载：日志显示 prefill backlog queue_time_ms=1700、scheduler queue waiting_requests=64，调度器排队导致 ttft_p95_ms=1850ms；prefix_cache_hit_rate=0.42 较低，相同前缀请求仍反复执行 prefill，进一步加重 prefill 负载，而 GPU 显存利用率和 kv_cache 空闲块均显示非显存瓶颈。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "ttft_p95_ms=1850ms"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "waiting_requests=64"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.42"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.78"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "kv_cache_free_blocks=320"
+          },
+          {
+            "source": "search_logs",
+            "detail": "keyword='scheduler queue' 返回日志: scheduler queue waiting_requests=64"
+          },
+          {
+            "source": "search_logs",
+            "detail": "keyword='prefill' 返回日志: prefill backlog queue_time_ms=1700"
+          },
+          {
+            "source": "high_ttft.md",
+            "detail": "可能根因包括 Prefill 阶段过载、调度器等待批次；常见信号包含等待队列增长"
+          },
+          {
+            "source": "prefix_cache.md",
+            "detail": "prefix_cache_hit_rate 长时间低于目标会导致相同前缀仍反复 prefill"
+          }
+        ],
+        "recommended_actions": [
+          "检查并调整 max_num_seqs 与请求长度（尤其长 prompt）的匹配关系，限制或拆分并发 prefill，缓解调度器 backlog。",
+          "优化前缀缓存命中率：统一可复用前缀（如 system prompt）的构造并核查缓存淘汰，避免相同前缀重复执行 prefill。",
+          "考虑将 prefill 与 decode 分离或对请求做排队限流，以减少 batch 等待和 queuing 时间。",
+          "继续监控 ttft_p95_ms、waiting_requests、prefill queue 时长与 prefix_cache_hit_rate，观察处置效果。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "index": 16,
+      "case_id": "ttft-08",
+      "input": {
+        "service_id": "demo-high-ttft",
+        "symptom": "scheduler queue waiting_requests=64。"
+      },
+      "expected": {
+        "incident_type": "high_ttft",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "waiting_requests"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "waiting_requests"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 45466.72,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-high-ttft"
+          },
+          "output": {
+            "service_id": "demo-high-ttft",
+            "gpu_memory_utilization": 0.78,
+            "waiting_requests": 64,
+            "ttft_p95_ms": 1850,
+            "prefix_cache_hit_rate": 0.42,
+            "request_success_rate": 0.995,
+            "kv_cache_free_blocks": 320
+          },
+          "latency_ms": 764.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "scheduler queue",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          ],
+          "latency_ms": 746.31
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "batching",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 772.29
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-high-ttft",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          ],
+          "latency_ms": 719.37
+        }
+      ],
+      "output": {
+        "incident_type": "high_ttft",
+        "severity": "medium",
+        "root_cause": "TTFT P95=1850ms 且 waiting_requests=64，prefill backlog 日志显示 queue_time_ms=1700ms，说明TTFT 时延主要来自调度队列排队/prefill backlog；由于只有单点快照且无 batching 相关日志，触发队列积压的进一步根因（如请求到达速率、调度参数、prefix cache 命中率等）尚未确定。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "service_id=demo-high-ttft metrics: gpu_memory_utilization=0.78, waiting_requests=64, ttft_p95_ms=1850, prefix_cache_hit_rate=0.42, request_success_rate=0.995, kv_cache_free_blocks=320"
+          },
+          {
+            "source": "search_logs keyword='scheduler queue'",
+            "detail": "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+          },
+          {
+            "source": "search_logs keyword='prefill'",
+            "detail": "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"
+          },
+          {
+            "source": "search_logs keyword='batching'",
+            "detail": "未检索到任何 batching 相关日志"
+          },
+          {
+            "source": "runbook: scheduler_queue.md",
+            "detail": "常见信号：waiting requests 持续增长，TTFT P95 同步变差；日志出现 scheduler queue timeout 或 batch waiting。"
+          },
+          {
+            "source": "runbook: high_ttft.md",
+            "detail": "常见信号：ttft_p95_ms 持续超过服务目标，等待队列增长；日志包含 scheduler queue、batching delay 或 prefill backlog；建议对 TTFT、queue time、prefill time 分段观测并调整 batching/调度参数。"
+          }
+        ],
+        "recommended_actions": [
+          "按照 runbook high_ttft.md 建议，对 TTFT、queue time、prefill time 分段观测，确认排队等待是否持续占 TTFT 主导。",
+          "按照 runbook high_ttft.md 建议，调整 batching 和调度参数，并用固定流量回归 TTFT P95。",
+          "补充采集 waiting_requests 和 ttft_p95_ms 的历史时间序列，验证等待队列是否持续增长。",
+          "补充获取调度器配置和当前请求到达速率，判断队列积压是否由流量突增或调度参数引起。",
+          "评估 prefix_cache_hit_rate=0.42 对 prefill 负载的影响，必要时优化 prefix cache 以降低 prefill 计算压力。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.7
+      }
+    },
+    {
+      "index": 17,
+      "case_id": "prefix-01",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "Prefix cache 命中率只有 4%。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 58961.82,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 716.9
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix cache",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled"
+          ],
+          "latency_ms": 703.63
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 738.91
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "KV",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 718.59
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 724.14
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache key",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 755.52
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "route",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 761.93
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hit rate",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 750.32
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer_version",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 730.26
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "replica",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 731.89
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "miss",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 782.78
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "dynamic",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 740.82
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "共享系统提示词（前缀）中混入了动态字段 tenant_timestamp，导致前缀文本不稳定、缓存键频繁变化，Prefix cache 命中率降至 4%。日志中的 WARN 动态字段告警与排障手册中“Prefix 文本不稳定，动态字段放在共享前缀中”的根因描述直接对应。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04，命中率仅为 4%"
+          },
+          {
+            "source": "search_logs (demo-prefix-cache, keyword: dynamic)",
+            "detail": "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          },
+          {
+            "source": "prefix_cache.md (runbook 可能根因)",
+            "detail": "Prefix 文本不稳定，动态字段放在共享前缀中；与 tenant_timestamp 告警一致"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "request_success_rate=0.998，可排除大量请求失败导致的 miss"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.71, kv_cache_free_blocks=512，缓存容量仍有空闲，基本排除缓存被逐出"
+          },
+          {
+            "source": "search_logs (demo-prefix-cache, keyword: tokenizer)",
+            "detail": "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0，仅发现单一版本，未发现 tokenizer 版本不一致"
+          },
+          {
+            "source": "search_logs (demo-prefix-cache, keyword: route)",
+            "detail": "2026-08-27T09:20:04Z INFO route distribution replicas=4，未发现路由异常"
+          },
+          {
+            "source": "search_logs (demo-prefix-cache, keyword: error / KV / miss / cache key)",
+            "detail": "未检索到错误、KV 逐出、miss 明细或 cache key 相关日志"
+          }
+        ],
+        "recommended_actions": [
+          "将动态字段 tenant_timestamp 从共享前缀（system prompt）中移出，改为放在缓存键之后的非前缀请求部分，或在生成缓存键前剥离/归一化该字段，确保共享前缀稳定。",
+          "修复时注意排障手册风险提示：不得以错误复用用户私有上下文为代价，确保租户/用户隔离边界不被突破。",
+          "修复后监控 prefix_cache_hit_rate、TTFT P95、request_success_rate 等指标，确认命中率提升且无性能或正确性回退。",
+          "进一步检查请求路由和 tokenizer 配置（当前仅见 tokenizer_version=1.2.0、replicas=4），必要时增加缓存键/miss 日志确认无其他不一致。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.87
+      }
+    },
+    {
+      "index": 18,
+      "case_id": "prefix-02",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "相同 system prompt 没有复用缓存。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 47341.38,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 762.0
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix cache",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled"
+          ],
+          "latency_ms": 732.0
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 712.88
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache miss",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 701.34
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 774.2
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "disable",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 704.48
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "WARN",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50",
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 744.95
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "Prefix cache is enabled and not resource-constrained, but prefix_cache_hit_rate is only 0.04 because the system prompt contains a dynamic tenant_timestamp field. Any timestamp change makes the tokenized prefix different from cached entries, so nominally identical system prompts do not match the existing cache key.",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04; gpu_memory_utilization=0.71; kv_cache_free_blocks=512; ttft_p95_ms=420; request_success_rate=0.998 for service demo-prefix-cache"
+          },
+          {
+            "source": "search_logs: WARN",
+            "detail": "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          },
+          {
+            "source": "search_logs: WARN",
+            "detail": "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          },
+          {
+            "source": "search_logs: prefix cache",
+            "detail": "2026-08-27T09:20:00Z INFO prefix cache enabled"
+          }
+        ],
+        "recommended_actions": [
+          "Move tenant_timestamp and other per-request dynamic fields out of the cacheable system-prompt prefix (e.g., append them to the message tail or user message) so the cache prefix is byte-identical across requests.",
+          "Do not cache user/tenant-private context in the static prefix; validate the prefix contains only common static content before relying on cache reuse.",
+          "After the change, re-run metrics (hit rate, TTFT, success rate) and quality regression before treating it as resolved."
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.85
+      }
+    },
+    {
+      "index": 19,
+      "case_id": "prefix-03",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "prefix cache hit rate 很低，请排查路由。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 110721.44,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 904.84
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix_cache_hit_rate",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 850.44
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "routing",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 815.5
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 819.86
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 794.4
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 779.09
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "node",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 704.81
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "route",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 884.16
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "miss",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 899.24
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hit",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 871.84
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 860.02
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "replica",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 1087.41
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hash",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 816.88
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "key",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 967.6
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "affinity",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 799.08
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "distribut",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 971.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "round",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 758.5
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prompt",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 704.73
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "consistent",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 703.78
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "length",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 741.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "request_id",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 761.17
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "请求的共享 system prompt 中检测到动态字段 tenant_timestamp，导致前缀内容跨请求不稳定、prefix cache 的 key 不一致，最终使 prefix_cache_hit_rate 只有 0.04。缓存本身已启用，tokenizer 版本也没有不一致的证据；路由方向仅看到 replicas=4 的常规分布，没有异常日志，因此证据更支持动态字段污染共享前缀而非路由问题。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot (service_id=demo-prefix-cache)",
+            "detail": "prefix_cache_hit_rate=0.04, 低于预期 expected_gt=0.50；request_success_rate=0.998, kv_cache_free_blocks=512, ttft_p95_ms=420"
+          },
+          {
+            "source": "search_logs keyword=prompt (service_id=demo-prefix-cache)",
+            "detail": "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp —— 系统提示词中包含动态时间戳字段，会使共享前缀不稳定并引发缓存键不一致"
+          },
+          {
+            "source": "search_logs keyword=prefix (service_id=demo-prefix-cache)",
+            "detail": "2026-08-27T09:20:00Z INFO prefix cache enabled —— 确认 prefix cache 功能已开启，并非因功能禁用导致命中率低"
+          },
+          {
+            "source": "search_logs keyword=routing (service_id=demo-prefix-cache)",
+            "detail": "routing 关键字返回空结果；keyword=route/replica 仅返回 INFO route distribution replicas=4，未发现路由异常、hash/key 不一致或亲和性相关告警"
+          },
+          {
+            "source": "search_logs keyword=tokenizer (service_id=demo-prefix-cache)",
+            "detail": "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0 —— 仅发现单一 tokenizer 版本，没有证据表明 tokenizer 配置不一致导致缓存键不同"
+          },
+          {
+            "source": "runbook prefix_cache.md section=可能根因",
+            "detail": "Prefix 文本不稳定，动态字段放在共享前缀中会导致缓存键不一致；当前日志中的 tenant_timestamp 恰好符合该模式"
+          }
+        ],
+        "recommended_actions": [
+          "将 tenant_timestamp 等动态字段从共享 system prompt/前缀中移除，改为放在可变后缀中，确保相同静态提示词对应相同前缀 token",
+          "移除动态字段后，使用 search_logs 跟踪 prefix/hit/miss 相关日志，记录 cache hit/miss、前缀长度和路由分布，确认 prefix_cache_hit_rate 回升至 >0.50",
+          "验证所有副本的 tokenizer 版本一致（当前记录为 1.2.0），避免因 tokenization 差异引入新的缓存键不一致",
+          "若移除动态字段后命中率仍低，再核查路由亲和性/一致性哈希是否把相同前缀请求分散到不同副本；当前日志仅显示 replicas=4，尚不足以断言路由问题"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.8
+      }
+    },
+    {
+      "index": 20,
+      "case_id": "prefix-04",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "发现动态字段导致 prefix 不稳定。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 25102.41,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 837.63
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix",
+            "limit": 30
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 883.85
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache",
+            "limit": 30
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 789.41
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "共享前缀中混入了动态字段，导致请求的 token 序列/缓存键不稳定；prefix cache 已启用但实际命中率仅 0.04（日志告警阈值 expected_gt=0.50），资源与延迟指标正常，排除显存/KV 容量或 Prefill 过载导致的 miss。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04, request_success_rate=0.998, gpu_memory_utilization=0.71, kv_cache_free_blocks=512, ttft_p95_ms=420, waiting_requests=5"
+          },
+          {
+            "source": "search_logs",
+            "detail": "INFO prefix cache enabled; WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          },
+          {
+            "source": "prefix_cache.md",
+            "detail": "Prefix 文本不稳定，动态字段放在共享前缀中；请求路由或 tokenizer 配置导致缓存键不一致。"
+          }
+        ],
+        "recommended_actions": [
+          "将动态字段移出共享前缀，确保共享前缀静态且逐 token 稳定。",
+          "核对请求 tokenizer 版本与配置一致性，避免同一文本因分词差异导致缓存键不一致。",
+          "记录并持续观测 cache hit/miss、前缀长度和路由分布，使用固定流量回归验证 P95 与命中率恢复到预期水平。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.85
+      }
+    },
+    {
+      "index": 21,
+      "case_id": "prefix-05",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "缓存命中率低于预期，tokenizer 版本需要检查。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 90918.42,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 888.08
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 826.75
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 853.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix_len",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 703.17
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "route",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 729.69
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache_key",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 719.3
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "version",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 684.85
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "replica",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 740.52
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "1.2.0",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 730.03
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "miss",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 704.5
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer_version",
+            "limit": 50
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 868.06
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "1.1",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 773.76
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "shared",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 736.31
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hash",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 769.38
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "INFO",
+            "limit": 50
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0",
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4",
+            "2026-08-27T09:20:05Z INFO request_success_rate=0.998"
+          ],
+          "latency_ms": 743.29
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "WARN",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50",
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 766.1
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "replicas",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:04Z INFO route distribution replicas=4"
+          ],
+          "latency_ms": 691.51
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "动态字段 tenant_timestamp 被检测到位于共享系统提示词（system prompt）中，导致前缀缓存键不稳定，缓存命中率降至 4%。tokenizer 版本仅有 1.2.0 的日志，未发现版本不一致证据。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04"
+          },
+          {
+            "source": "search_logs: WARN",
+            "detail": "prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          },
+          {
+            "source": "search_logs: WARN",
+            "detail": "dynamic system prompt field detected tenant_timestamp"
+          },
+          {
+            "source": "runbook: prefix_cache.md（可能根因）",
+            "detail": "Prefix 文本不稳定，动态字段放在共享前缀中"
+          },
+          {
+            "source": "search_logs: tokenizer_version",
+            "detail": "tokenizer_version=1.2.0，未发现其他 tokenizer 版本"
+          },
+          {
+            "source": "search_logs: 1.1",
+            "detail": "无结果，不支持 tokenizer 版本不一致根因"
+          },
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.71, kv_cache_free_blocks=512, request_success_rate=0.998，无显存/KV容量压力证据"
+          },
+          {
+            "source": "search_logs: prefix_len",
+            "detail": "无结果，缺少前缀长度分布证据"
+          },
+          {
+            "source": "search_logs: cache_key",
+            "detail": "无结果，缺少缓存键一致性证据"
+          },
+          {
+            "source": "search_logs: route",
+            "detail": "route distribution replicas=4，但缺少跨副本缓存分布证据"
+          }
+        ],
+        "recommended_actions": [
+          "将动态字段 tenant_timestamp 移出共享前缀，或使其不参与缓存键计算，以稳定共享前缀。",
+          "确认所有副本的 tokenizer 版本保持一致（当前日志仅显示 1.2.0）。",
+          "补齐观测：记录 prefix cache hit/miss、前缀长度分布、路由分布后再调整。",
+          "当前无显存/KV Cache 压力证据，无需执行 cuda_oom 手册中的降 max_num_seqs/max_model_len 操作。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.8
+      }
+    },
+    {
+      "index": 22,
+      "case_id": "prefix-06",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "prefix cache miss 增多。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 77585.86,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 710.02
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache miss",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 726.69
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 716.47
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 700.91
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "routing",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 725.67
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 739.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hash",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 751.21
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "hit",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 720.05
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "version",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 727.24
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prompt",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 734.03
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "系统提示词中存在动态字段 tenant_timestamp，且其位于共享前缀内，导致不同请求的 prefix cache 键不一致，prefix cache 命中率仅 0.04，远低于预期 0.50。路由/tokenizer 无异常且 KV Cache 容量充足，排除其他根因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot(service_id=demo-prefix-cache)",
+            "detail": "prefix_cache_hit_rate=0.04，命中率极低；gpu_memory_utilization=0.71, kv_cache_free_blocks=512, request_success_rate=0.998, waiting_requests=5，无明显 OOM/容量压力。"
+          },
+          {
+            "source": "search_logs/service=demo-prefix-cache&keyword=prompt",
+            "detail": "日志 WARN dynamic system prompt field detected tenant_timestamp，显示动态字段位于系统提示词中，正是 runbook prefix_cache.md 第一个可能根因的场景。"
+          },
+          {
+            "source": "prefix_cache.md#可能根因",
+            "detail": "文档指出 'Prefix 文本不稳定，动态字段放在共享前缀中' 会导致 prefix cache miss；当前日志特征与该根因一致。"
+          },
+          {
+            "source": "search_logs/service=demo-prefix-cache&keyword=tokenizer",
+            "detail": "日志 INFO tokenizer_version=1.2.0；仅发现单一 tokenizer 版本，未发现 tokenizer 版本不一致证据。"
+          },
+          {
+            "source": "search_logs/service=demo-prefix-cache&keyword=routing",
+            "detail": "关键词 routing 搜索结果为空，未发现请求路由不一致导致的缓存键异常证据。"
+          },
+          {
+            "source": "search_logs/service=demo-prefix-cache&keyword=evict",
+            "detail": "关键词 evict 搜索结果为空，未发现因缓存逐出导致命中率下降的直接证据。"
+          }
+        ],
+        "recommended_actions": [
+          "将 tenant_timestamp 等动态字段从共享系统提示词中移出，放到每条请求非共享部分（如请求尾部/单独字段），确保共享前缀稳定可复用。",
+          "修复后持续记录 cache hit/miss、前缀长度与路由分布，确认 prefix_cache_hit_rate 回升到 0.50 以上再收尾。",
+          "若动态字段必须保留在前缀中使用，考虑按租户/时间范围拆分缓存池或采用前缀分段策略，避免动态内容污染共享前缀。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.93
+      }
+    },
+    {
+      "index": 23,
+      "case_id": "prefix-07",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "共享前缀反复执行 prefill。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 61985.58,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 738.53
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "cache",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 706.87
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 760.12
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "tokenizer",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"
+          ],
+          "latency_ms": 713.79
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "routing",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 730.1
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled",
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 707.45
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "medium",
+        "root_cause": "根因尚不能确定。指标确认前缀缓存命中率（0.04）远低于预期（>0.50），显示存在低前缀缓存命中问题；但现有日志不足以区分共享前缀内容不稳定、tokenizer 版本配置不一致或请求路由不一致等候选根因，需进一步采集证据。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04, request_success_rate=0.998, waiting_requests=5, ttft_p95_ms=420, gpu_memory_utilization=0.71, kv_cache_free_blocks=512"
+          },
+          {
+            "source": "search_logs:cache",
+            "detail": "2026-08-27T09:20:00Z INFO prefix cache enabled; 2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          },
+          {
+            "source": "search_logs:tokenizer",
+            "detail": "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0（未发现其他版本记录）"
+          },
+          {
+            "source": "search_logs:routing",
+            "detail": "以 routing 为关键词未搜索到日志，无法验证路由一致性。"
+          },
+          {
+            "source": "search_logs:prefill",
+            "detail": "以 prefill 为关键词未搜索到日志，无法获得 prefill 请求明细。"
+          },
+          {
+            "source": "prefix_cache.md runbook",
+            "detail": "当 prefix_cache_hit_rate 长时间低于目标且相同 system prompt 的请求仍反复执行 prefill 时，应检查共享前缀稳定性与 tokenizer/routing 配置一致性。"
+          }
+        ],
+        "recommended_actions": [
+          "核验共享前缀输入是否稳定：对比相同 system prompt 的实际输入是否逐字一致，确认无时间戳、请求 ID、动态 token 等可变字段混入。",
+          "核对所有实例/节点的 tokenizer 版本是否一致，排除 tokenizer 配置差异导致缓存键不匹配。",
+          "抓取请求路由日志，确认相同前缀请求是否被路由到不同实例或分片，导致跨节点缓存未命中。",
+          "记录 cache hit/miss、每次请求的前缀 token 长度和路由分布，作为后续调整依据。",
+          "将上述证据和待采集项交给值班工程师决策，不自动修改线上配置。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.6
+      }
+    },
+    {
+      "index": 24,
+      "case_id": "prefix-08",
+      "input": {
+        "service_id": "demo-prefix-cache",
+        "symptom": "prefix_cache_hit_rate=0.04。"
+      },
+      "expected": {
+        "incident_type": "low_prefix_cache_hit",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "prefix_cache_hit_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "prefix_cache_hit_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 41941.35,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-prefix-cache"
+          },
+          "output": {
+            "service_id": "demo-prefix-cache",
+            "gpu_memory_utilization": 0.71,
+            "waiting_requests": 5,
+            "ttft_p95_ms": 420,
+            "prefix_cache_hit_rate": 0.04,
+            "request_success_rate": 0.998,
+            "kv_cache_free_blocks": 512
+          },
+          "latency_ms": 763.31
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix_cache_hit_rate",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"
+          ],
+          "latency_ms": 823.1
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefill",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 823.72
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 759.83
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "system prompt",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"
+          ],
+          "latency_ms": 826.38
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-prefix-cache",
+            "keyword": "prefix cache",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:20:00Z INFO prefix cache enabled"
+          ],
+          "latency_ms": 718.96
+        }
+      ],
+      "output": {
+        "incident_type": "low_prefix_cache_hit",
+        "severity": "low",
+        "root_cause": "检测到 system prompt 包含动态字段 tenant_timestamp，使每次请求的 prompt 前缀发生变化，无法命中 prefix cache，导致 prefix_cache_hit_rate=0.04 且反复触发 prefill。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "prefix_cache_hit_rate=0.04，明显低于 runbook 中的 0.50 目标；kv_cache_free_blocks=512、gpu_memory_utilization=0.71，说明 KV cache 仍有空闲；request_success_rate=0.998，服务可用性正常。"
+          },
+          {
+            "source": "search_logs keyword='prefix_cache_hit_rate'",
+            "detail": "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50，确认命中率未达目标并触发告警。"
+          },
+          {
+            "source": "search_logs keyword='system prompt'",
+            "detail": "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp，这是前缀不稳定的关键证据。"
+          },
+          {
+            "source": "search_logs keyword='prefix cache'",
+            "detail": "2026-08-27T09:20:00Z INFO prefix cache enabled，表明服务已启用前缀缓存，排除未开启配置的问题。"
+          },
+          {
+            "source": "search_logs keyword='prefill' 和 'evict'",
+            "detail": "两个关键字均无日志，未发现缓存驱逐或异常 prefill 事件，支持根因是前缀不匹配而非容量淘汰导致。"
+          }
+        ],
+        "recommended_actions": [
+          "将 tenant_timestamp 等动态字段从 system prompt 的公共前缀中移除，使其变成稳定的系统提示以恢复缓存命中。",
+          "如果时间戳必须保留，请将其移动到共享前缀之后的独立字段或请求体末尾，避免破坏可复用前缀。",
+          "修复后监控 prefix_cache_hit_rate，期望回升至大于 0.50，并观察 ttft_p95 是否随之改善。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.92
+      }
+    },
+    {
+      "index": 25,
+      "case_id": "unknown-01",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "服务偶尔抖动，但没有明显错误信号。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "request_success_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "request_success_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 74181.09,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 818.02
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 758.65
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "gpu memory",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:30:01Z INFO gpu memory utilization=0.56"
+          ],
+          "latency_ms": 733.37
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "ttft",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 711.79
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "latency",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 704.1
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "concurrency",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 725.67
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "request",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:30:02Z INFO request_success_rate=0.999",
+            "2026-08-27T09:30:04Z DEBUG request trace sampled=false"
+          ],
+          "latency_ms": 681.3
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "version",
+            "limit": 20
+          },
+          "output": [
+            "2026-08-27T09:30:03Z INFO deployment version=demo-2026.08.27"
+          ],
+          "latency_ms": 782.33
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "kv cache",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 794.29
+        },
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 687.31
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "当前可观测性数据显示服务基本健康（GPU 显存利用率 0.56、成功率 0.999、无错误日志），与“偶尔抖动”的症状之间不存在明确的已知故障信号；同时请求级样本和抖动时间窗口的多点时间序列缺失，无法锁定根因。按照排障手册处理原则，证据不足或信号无法对应时选择 unknown，不做推测性归因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "获取两次快照一致：gpu_memory_utilization=0.56, waiting_requests=2, ttft_p95_ms=210, prefix_cache_hit_rate=0.67, request_success_rate=0.999, kv_cache_free_blocks=700；无显存长期接近上限或抖动信号"
+          },
+          {
+            "source": "search_logs",
+            "detail": "error、ttft、latency、concurrency、kv cache 关键字均无匹配日志；gpu memory 日志显示 utilization=0.56，与快照一致；request 日志中 trace sampled=false，缺少请求级样本；version 日志显示 deployment version=demo-2026.08.27"
+          },
+          {
+            "source": "unknown_incident.md",
+            "detail": "处理原则：若指标、日志和已知故障信号互相矛盾或证据不足，应分类为 unknown；先补充服务版本、请求样本、GPU 指标、错误日志和时间窗口。当前已补充基础可观测性但缺少关键时序与样本。"
+          },
+          {
+            "source": "gpu_memory.md",
+            "detail": "常见信号要求 GPU memory utilization 长时间接近上限或在请求峰值时明显抖动；当前 0.56 且无抖动证据，不支持将其作为根因。"
+          },
+          {
+            "source": "prefix_cache.md",
+            "detail": "Prefix cache hit rate=0.67 属中等，且无上下文复用、错误复用相关信号，不足以作为分类依据。"
+          }
+        ],
+        "recommended_actions": [
+          "拉取抖动发生前后的连续多点时间序列（GPU 显存利用率、并发、TTFT、KV Cache 空闲块、prefix cache 命中率），观察峰值期是否存在抖动。",
+          "开启请求级 trace 采样，补充请求长度、上下文复用情况及队列等待细节。",
+          "记录抖动发生的确切时间和持续时间，与日志时间窗口对比。",
+          "若后续新证据指向某一特定故障信号，再按对应 runbook 收敛分类。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "get_metrics_snapshot"
+        ],
+        "confidence": 0.74
+      }
+    },
+    {
+      "index": 26,
+      "case_id": "unknown-02",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "请分析这次不明原因的告警。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 32523.08,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 789.98
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "CUDA out of memory",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 721.32
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "OutOfMemoryError",
+            "limit": 10
+          },
+          "output": [],
+          "latency_ms": 703.7
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "现有指标和日志未显示任何候选异常：GPU显存利用率0.56远未接近上限，KV cache空闲blocks为700，请求成功率0.999，TTFT p95为210ms，等待请求仅2个，且日志中未检索到CUDA out of memory或OutOfMemoryError。排障手册中的四类候选根因（CUDA OOM、KV cache容量不足、GPU显存压力、Prefill过载/高TTFT）均无证据支持，因此根因未知。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "service_id=demo-unknown: gpu_memory_utilization=0.56, waiting_requests=2, ttft_p95_ms=210, prefix_cache_hit_rate=0.67, request_success_rate=0.999, kv_cache_free_blocks=700"
+          },
+          {
+            "source": "search_logs",
+            "detail": "关键词 'CUDA out of memory' 返回0条记录"
+          },
+          {
+            "source": "search_logs",
+            "detail": "关键词 'OutOfMemoryError' 返回0条记录"
+          },
+          {
+            "source": "cuda_oom.md",
+            "detail": "日志无CUDA OOM，gpu_memory_utilization=0.56远低于1.0且成功率正常，不满足CUDA OOM判据"
+          },
+          {
+            "source": "kv_cache_capacity.md",
+            "detail": "kv_cache_free_blocks=700仍有充足空闲，gpu_memory_utilization=0.56未显示显存将尽或频繁eviction迹象"
+          },
+          {
+            "source": "gpu_memory.md",
+            "detail": "gpu_memory_utilization=0.56，不具备长时间接近上限或峰值抖动的特征"
+          },
+          {
+            "source": "high_ttft.md",
+            "detail": "waiting_requests=2且ttft_p95=210ms，未出现批次积压或GPU利用率瓶颈，不支持Prefill过载/高TTFT假设"
+          }
+        ],
+        "recommended_actions": [
+          "获取告警名称、触发指标、阈值及精确触发时间窗口",
+          "拉取告警时段前后的指标时间序列，检查是否存在GPU显存或KV cache瞬时抖动",
+          "扩大日志检索范围，尝试关键词如 'eviction'、'timeout'、'error'、'retry' 等",
+          "补充运行状态指标（如GPU compute利用率、每请求输入长度、max_num_seqs配置）以进一步排查"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.3
+      }
+    },
+    {
+      "index": 27,
+      "case_id": "unknown-03",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "指标看起来正常，需要继续收集证据。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "request_success_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "request_success_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 62685.8,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 896.46
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 820.61
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "oom",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 800.89
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "cuda",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 798.39
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "warn",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 771.56
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "timeout",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 681.44
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "fail",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 711.61
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "exception",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 700.5
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "指标快照显示 gpu_memory_utilization=0.56、waiting_requests=2、ttft_p95_ms=210、prefix_cache_hit_rate=0.67、request_success_rate=0.999、kv_cache_free_blocks=700，均在正常范围；对 error/oom/cuda/warn/timeout/fail/exception 七组关键词的日志检索均无命中，未发现 CUDA OOM、显存告警、超时或异常堆栈等故障签名。依据 unknown_incident.md 与 gpu_memory.md 的指引，在缺乏可定位故障证据前不应将推测作为事实，因此判定为 unknown，需要继续采集上下文证据后由值班工程师判断。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.56, waiting_requests=2, ttft_p95_ms=210, prefix_cache_hit_rate=0.67, request_success_rate=0.999, kv_cache_free_blocks=700，各指标未显示异常。"
+          },
+          {
+            "source": "search_logs(error/oom/cuda/warn/timeout/fail/exception)",
+            "detail": "针对 error、oom、cuda、warn、timeout、fail、exception 的日志检索结果均为空，无错误日志或告警签名。"
+          },
+          {
+            "source": "unknown_incident.md",
+            "detail": "排障手册建议：不执行自动修改，将证据和下一步采集项交给值班工程师继续判断。"
+          },
+          {
+            "source": "gpu_memory.md",
+            "detail": "排障手册要求同时采集显存、请求长度、并发、KV Cache 与错误日志，避免只凭单一指标下结论。"
+          }
+        ],
+        "recommended_actions": [
+          "将当前证据移交值班工程师，并继续采集请求长度分布、瞬时并发、吞吐趋势以及模型权重/KV Cache/CUDA Graph 的显存预算明细。",
+          "在无测量证据前不修改 max_num_seqs 或 max_model_len 等生产参数；如有调整需求，须同步做吞吐与质量回归。",
+          "保持对 request_success_rate、ttft_p95_ms、prefix_cache_hit_rate 的持续观察，若出现指标恶化则重新触发诊断。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.8
+      }
+    },
+    {
+      "index": 28,
+      "case_id": "unknown-04",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "没有 OOM、延迟或缓存异常，请判断。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 29022.21,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 785.09
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "kv cache",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 750.72
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 683.6
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 742.26
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "现有证据未显示 CUDA OOM、TTFT 延迟异常、KV Cache 容量不足或前缀缓存异常；各核心指标均在健康范围，且错误/驱逐日志为空，无法确认具体根因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.56，显存未占满；等待请求数=2；TTFT p95=210ms；前缀缓存命中率=0.67；请求成功率=0.999；KV Cache 空闲 block=700。"
+          },
+          {
+            "source": "search_logs",
+            "detail": "搜索关键字 'kv cache' 无日志结果，未发现 KV Cache 分配失败或容量相关报错。"
+          },
+          {
+            "source": "search_logs",
+            "detail": "搜索关键字 'error' 无日志结果，未发现运行时错误或分配失败记录。"
+          },
+          {
+            "source": "search_logs",
+            "detail": "搜索关键字 'evict' 无日志结果，未发现频繁 eviction 迹象。"
+          },
+          {
+            "source": "kv_cache_capacity.md",
+            "detail": "常见信号中的“可用 KV blocks 不足”和“频繁 eviction”均未被当前证据支持。"
+          },
+          {
+            "source": "runbook 建议动作",
+            "detail": "同时采集显存、请求长度、并发、KV Cache 与错误日志的要求已基本满足，但指标快照缺少请求长度维度；其余维度均无异常。"
+          }
+        ],
+        "recommended_actions": [
+          "继续观察显存、KV Cache 空闲块、TTFT 和前缀缓存命中率趋势，等待异常信号出现后再定位。",
+          "补充采集请求长度/上下文长度指标，以更完整评估 KV Cache 预算压力。",
+          "定期检查前缀缓存命中率是否有持续下降趋势；若后续命中率显著下降，再排查 tokenizer 配置和请求路由缓存键一致性。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "index": 29,
+      "case_id": "unknown-05",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "健康检查正常但业务告警未知。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "request_success_rate"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "request_success_rate"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 36441.3,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 700.37
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 745.99
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "timeout",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 770.27
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "warn",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 693.87
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "evict",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 731.79
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "prefix",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 726.29
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "当前指标与日志均未显示已知故障模式（无显存/OOM/超时/前缀缓存异常），业务告警无法与任何基础设施或推理层信号对应，按unknown_incident.md原则归类为unknown。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot(service_id=demo-unknown)",
+            "detail": "gpu_memory_utilization=0.56, kv_cache_free_blocks=700, request_success_rate=0.999, ttft_p95_ms=210, waiting_requests=2, prefix_cache_hit_rate=0.67，各指标均在正常范围。"
+          },
+          {
+            "source": "search_logs(service_id=demo-unknown, keyword=error)",
+            "detail": "无任何日志命中。"
+          },
+          {
+            "source": "search_logs(service_id=demo-unknown, keyword=warn)",
+            "detail": "无任何日志命中。"
+          },
+          {
+            "source": "search_logs(service_id=demo-unknown, keyword=timeout)",
+            "detail": "无任何日志命中。"
+          },
+          {
+            "source": "search_logs(service_id=demo-unknown, keyword=evict)",
+            "detail": "无任何日志命中。"
+          },
+          {
+            "source": "search_logs(service_id=demo-unknown, keyword=prefix)",
+            "detail": "无任何日志命中。"
+          },
+          {
+            "source": "unknown_incident.md",
+            "detail": "指标、日志和已知故障信号互相矛盾/无对应证据时，应分类为unknown，并补充服务版本、请求样本、GPU指标、错误日志和时间窗口。"
+          }
+        ],
+        "recommended_actions": [
+          "获取业务告警原文、触发规则、时间窗口与请求样本。",
+          "补充服务版本、路由分布及业务层指标，确认告警是否为业务口径问题。",
+          "拉取告警时间点的GPU指标和错误日志后重新评估分类。",
+          "若持续无异常，可考虑关闭或降低该告警级别。",
+          "按cuda_oom.md建议，若后续出现显存趋势上升，保留指标日志并逐步调整max_num_seqs或max_model_len。"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.9
+      }
+    },
+    {
+      "index": 30,
+      "case_id": "unknown-06",
+      "input": {
+        "service_id": "demo-unknown",
+        "symptom": "请不要修改参数，先输出当前证据。"
+      },
+      "expected": {
+        "incident_type": "unknown",
+        "tools": [
+          "get_metrics_snapshot",
+          "search_logs"
+        ],
+        "evidence_terms": [
+          "gpu_memory_utilization"
+        ]
+      },
+      "success": true,
+      "error": null,
+      "incident_type_correct": true,
+      "tools_correct": true,
+      "schema_valid": true,
+      "covered_evidence_terms": [
+        "gpu_memory_utilization"
+      ],
+      "evidence_terms_covered": 1,
+      "evidence_terms_total": 1,
+      "latency_ms": 20221.19,
+      "tool_calls": [
+        {
+          "event": "tool_execution",
+          "name": "get_metrics_snapshot",
+          "arguments": {
+            "service_id": "demo-unknown"
+          },
+          "output": {
+            "service_id": "demo-unknown",
+            "gpu_memory_utilization": 0.56,
+            "waiting_requests": 2,
+            "ttft_p95_ms": 210,
+            "prefix_cache_hit_rate": 0.67,
+            "request_success_rate": 0.999,
+            "kv_cache_free_blocks": 700
+          },
+          "latency_ms": 725.88
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "OOM",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 716.93
+        },
+        {
+          "event": "tool_execution",
+          "name": "search_logs",
+          "arguments": {
+            "service_id": "demo-unknown",
+            "keyword": "error",
+            "limit": 20
+          },
+          "output": [],
+          "latency_ms": 717.77
+        }
+      ],
+      "output": {
+        "incident_type": "unknown",
+        "severity": "low",
+        "root_cause": "当前请求仅要求输出证据并明确指示不要修改参数。现有指标（GPU 显存利用率 0.56、成功率 0.999、KV Cache 空闲块 700）与日志检索（无 OOM/error 日志）均未显示异常或明确故障，因此无法确认具体根因。",
+        "evidence": [
+          {
+            "source": "get_metrics_snapshot",
+            "detail": "gpu_memory_utilization=0.56, waiting_requests=2, ttft_p95_ms=210, prefix_cache_hit_rate=0.67, request_success_rate=0.999, kv_cache_free_blocks=700"
+          },
+          {
+            "source": "search_logs 关键字=OOM",
+            "detail": "未发现包含 'OOM' 的日志"
+          },
+          {
+            "source": "search_logs 关键字=error",
+            "detail": "未发现包含 'error' 的日志"
+          },
+          {
+            "source": "unknown_incident.md",
+            "detail": "不执行自动修改；将证据和下一步采集项交给值班工程师。"
+          }
+        ],
+        "recommended_actions": [
+          "保留当前指标和日志证据，不修改任何生产参数",
+          "由值班工程师结合具体症状决定进一步采集项（例如并发/排队延迟、前缀命中率随时间趋势等）"
+        ],
+        "tools_used": [
+          "get_metrics_snapshot",
+          "search_logs",
+          "search_logs"
+        ],
+        "confidence": 0.9
+      }
+    }
+  ],
+  "rag": {
+    "provider": "hybrid",
+    "strict": true,
+    "final_top_k": 3,
+    "stage_trace": "data/online_evaluation_trace.jsonl"
+  }
+}

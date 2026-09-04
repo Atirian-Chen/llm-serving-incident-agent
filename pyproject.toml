@@ -22,12 +22,16 @@ dependencies = [
 
 [project.optional-dependencies]
 rag = [
+  "rank-bm25>=0.2,<1",
+  "jieba>=0.42,<1",
   "chromadb>=0.5,<1",
   "sentence-transformers>=3,<4",
 ]
 tracing = ["langsmith>=0.1,<1"]
 dev = ["pytest>=8,<9", "pytest-asyncio>=0.24,<1"]
 all = [
+  "rank-bm25>=0.2,<1",
+  "jieba>=0.42,<1",
   "chromadb>=0.5,<1",
   "sentence-transformers>=3,<4",
   "langsmith>=0.1,<1",

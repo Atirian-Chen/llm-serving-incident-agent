@@ -19,7 +19,15 @@ ROOT = Path(__file__).resolve().parents[2]
 
 @dataclass(frozen=True)
 class Settings:
-    rag_provider: str = os.getenv("RAG_PROVIDER", "keyword")
+    rag_provider: str = os.getenv("RAG_PROVIDER", "hybrid")
+    rag_final_top_k: int = int(os.getenv("RAG_FINAL_TOP_K", "3"))
+    rag_bm25_top_k: int = int(os.getenv("RAG_BM25_TOP_K", "20"))
+    rag_dense_top_k: int = int(os.getenv("RAG_DENSE_TOP_K", "20"))
+    rag_rrf_k: int = int(os.getenv("RAG_RRF_K", "60"))
+    rag_rrf_candidate_k: int = int(os.getenv("RAG_RRF_CANDIDATE_K", "30"))
+    rag_reranker_model: str = os.getenv("RAG_RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
+    rag_device: str = os.getenv("RAG_DEVICE", "cuda")
+    rag_strict: bool = os.getenv("RAG_STRICT", "true").lower() in {"1", "true", "yes", "on"}
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5")
     chroma_dir: Path = Path(os.getenv("CHROMA_DIR", str(ROOT / "data" / "chroma")))
     max_agent_steps: int = int(os.getenv("MAX_AGENT_STEPS", "5"))

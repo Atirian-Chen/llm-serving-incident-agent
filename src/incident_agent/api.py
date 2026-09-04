@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from .config import LLMConfigurationError, load_deepseek_settings, settings
 from .graph import DiagnosisEngine
 from .models import LLMUnavailableError, build_model
+from .rag.errors import RAGError
 from .schemas import IncidentReport, IncidentRequest
 
 
@@ -22,7 +23,7 @@ async def lifespan(app: FastAPI):
     app.state.llm_error = None
     try:
         app.state.engine = create_engine()
-    except (LLMConfigurationError, LLMUnavailableError) as exc:
+    except (LLMConfigurationError, LLMUnavailableError, RAGError) as exc:
         # Keep the HTTP process available so /health and /diagnose can expose
         # the actionable configuration error instead of hiding it at startup.
         app.state.llm_error = str(exc)
@@ -70,7 +71,7 @@ async def diagnose(request: IncidentRequest) -> IncidentReport:
         raise HTTPException(status_code=504, detail="diagnosis timed out") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except (LLMConfigurationError, LLMUnavailableError) as exc:
+    except (LLMConfigurationError, LLMUnavailableError, RAGError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"diagnosis failed: {exc}") from exc
