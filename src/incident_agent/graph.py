@@ -7,21 +7,21 @@ from uuid import uuid4
 
 from .config import settings
 from .mcp_client import MCPToolClient
-from .models import AgentModel, ModelDecision, RuleBasedModel
+from .models import AgentModel, LLMUnavailableError, ModelDecision, build_model
 from .rag import build_retriever
 from .schemas import IncidentReport, IncidentRequest, ToolCall
 from .tracing import TraceRecorder
 
 try:
     from langgraph.graph import END, START, StateGraph  # type: ignore
-except ImportError:  # pragma: no cover - fallback is useful before installation
+except ImportError:  # pragma: no cover - surfaced when the engine is created
     StateGraph = None  # type: ignore
     START = "__start__"
     END = "__end__"
 
 try:
     from langgraph.checkpoint.memory import MemorySaver  # type: ignore
-except ImportError:  # pragma: no cover - only used when LangGraph is absent
+except ImportError:  # pragma: no cover - surfaced when the engine is created
     MemorySaver = None  # type: ignore
 
 
@@ -46,20 +46,23 @@ class DiagnosisEngine:
         max_steps: int | None = None,
         tool_timeout: float | None = None,
     ) -> None:
+        if StateGraph is None or MemorySaver is None:
+            raise LLMUnavailableError(
+                "LLM unavailable: install project dependencies with pip install -e ."
+            )
         self.retriever = retriever or build_retriever()
-        self.model = model or RuleBasedModel()
+        self.model = model or build_model()
         self.tool_client = tool_client or MCPToolClient()
         self.tracer = tracer or TraceRecorder()
         self.max_steps = max_steps or settings.max_agent_steps
         self.tool_timeout = tool_timeout or settings.tool_timeout_seconds
         # MemorySaver makes each run addressable by ``run_id`` and demonstrates
-        # LangGraph's checkpoint contract without introducing a database. The
-        # graph remains runnable in the dependency-free manual fallback.
-        self._checkpointer = MemorySaver() if MemorySaver is not None else None
-        self._compiled_graph = self._build_graph() if StateGraph is not None else None
+        # LangGraph's checkpoint contract without introducing a database.
+        self._checkpointer = MemorySaver()
+        self._compiled_graph = self._build_graph()
 
     async def aclose(self) -> None:
-        """Close a persistent fallback MCP process, if one was started."""
+        """Release MCP resources held by the client."""
         await self.tool_client.aclose()
 
     def _build_graph(self):
@@ -77,9 +80,7 @@ class DiagnosisEngine:
         )
         graph.add_edge("call_tools", "agent_reason")
         graph.add_edge("finalize_report", END)
-        if self._checkpointer is not None:
-            return graph.compile(checkpointer=self._checkpointer)
-        return graph.compile()
+        return graph.compile(checkpointer=self._checkpointer)
 
     async def retrieve_runbook(self, state: DiagnosisState) -> dict[str, Any]:
         request = state["request"]
@@ -113,7 +114,12 @@ class DiagnosisEngine:
                     )
                     previous.append({"name": call.name, "arguments": call.arguments, "result": result})
                 except Exception as exc:
-                    previous.append({"name": call.name, "arguments": call.arguments, "error": str(exc), "result": []})
+                    # A failed evidence query must stop the run. Passing an
+                    # empty result back to the model would allow it to invent
+                    # a diagnosis from incomplete evidence.
+                    raise LLMUnavailableError(
+                        f"LLM unavailable: tool call failed for {call.name}: {exc}"
+                    ) from exc
         return {"tool_results": previous, "pending_tool_calls": []}
 
     async def finalize_report(self, state: DiagnosisState) -> dict[str, Any]:
@@ -141,28 +147,14 @@ class DiagnosisEngine:
         }
         started = time.perf_counter()
         self.tracer.event(run_id, "agent.start", {"service_id": parsed.service_id})
-        if self._compiled_graph is not None:
-            config = {"configurable": {"thread_id": run_id}}
-            result = await asyncio.wait_for(
-                self._compiled_graph.ainvoke(initial, config=config),
-                timeout=settings.agent_timeout_seconds,
-            )
-        else:
-            result = await asyncio.wait_for(self._manual_run(initial), timeout=settings.agent_timeout_seconds)
+        config = {"configurable": {"thread_id": run_id}}
+        result = await asyncio.wait_for(
+            self._compiled_graph.ainvoke(initial, config=config),
+            timeout=settings.agent_timeout_seconds,
+        )
         self.tracer.event(
             run_id,
             "agent.end",
             {"duration_ms": round((time.perf_counter() - started) * 1000, 2), "steps": result.get("step_count", 0)},
         )
         return IncidentReport.model_validate(result["final_report"])
-
-    async def _manual_run(self, state: DiagnosisState) -> DiagnosisState:
-        state.update(await self.retrieve_runbook(state))
-        while True:
-            state.update(await self.agent_reason(state))
-            if self.route_after_agent(state) == "tools":
-                state.update(await self.call_tools(state))
-            else:
-                break
-        state.update(await self.finalize_report(state))
-        return state

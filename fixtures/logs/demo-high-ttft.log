@@ -1,0 +1,7 @@
+2026-08-27T09:10:00Z INFO gpu memory utilization=0.78
+2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64
+2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700
+2026-08-27T09:10:03Z WARN ttft_p95_ms=1850 target_ms=500
+2026-08-27T09:10:04Z INFO decode workers healthy
+2026-08-27T09:10:05Z INFO request_success_rate=0.995
+

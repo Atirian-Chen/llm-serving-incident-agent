@@ -1,0 +1,8 @@
+2026-08-27T09:00:00Z INFO scheduler batch_started requests=16
+2026-08-27T09:00:01Z WARN gpu memory utilization=0.97
+2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache
+2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100
+2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100
+2026-08-27T09:00:04Z WARN kv cache free blocks=12
+2026-08-27T09:00:05Z INFO health probe ok
+

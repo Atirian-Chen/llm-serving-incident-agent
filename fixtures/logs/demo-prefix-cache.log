@@ -1,0 +1,7 @@
+2026-08-27T09:20:00Z INFO prefix cache enabled
+2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50
+2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0
+2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp
+2026-08-27T09:20:04Z INFO route distribution replicas=4
+2026-08-27T09:20:05Z INFO request_success_rate=0.998
+

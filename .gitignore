@@ -4,8 +4,10 @@ __pycache__/
 .ruff_cache/
 .venv/
 .env
+config/llm.toml
 .chroma/
 data/*.jsonl
 data/*.json
 *.log
+!fixtures/logs/*.log
 *.egg-info/

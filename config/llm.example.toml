@@ -1,0 +1,7 @@
+[deepseek]
+# Copy this file to config/llm.toml. Never commit the file containing your key.
+api_key = "sk-your-deepseek-api-key"
+model = "deepseek-chat"
+base_url = "https://api.deepseek.com"
+timeout_seconds = 30
+max_retries = 2

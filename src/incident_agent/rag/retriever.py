@@ -46,7 +46,7 @@ def _tokens(text: str) -> set[str]:
 
 
 class KeywordRetriever:
-    """Deterministic offline retriever used by tests and local demos."""
+    """Lightweight deterministic retriever for local runbook documents."""
 
     def __init__(self, chunks: list[DocumentChunk] | None = None) -> None:
         self.chunks = chunks if chunks is not None else load_markdown_chunks()
@@ -113,10 +113,5 @@ class ChromaBGERetriever:
 def build_retriever(provider: str | None = None):
     provider = provider or settings.rag_provider
     if provider.lower() in {"chroma", "bge", "dense"}:
-        try:
-            return ChromaBGERetriever()
-        except RuntimeError:
-            # Offline startup should still be useful; expose the chosen fallback in README/trace.
-            pass
+        return ChromaBGERetriever()
     return KeywordRetriever()
-

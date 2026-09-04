@@ -19,17 +19,12 @@ python -m venv .venv
 python -m pip install -e ".[all]"
 ```
 
-不需要真实模型或 API Key 时，可以使用确定性的离线模型运行评测：
+配置在线 DeepSeek 模型后启动 API：
 
 ```powershell
-$env:PYTHONPATH = "src"
-python scripts/evaluate.py
-```
-
-安装完整依赖后启动 API：
-
-```powershell
-Copy-Item .env.example .env
+Copy-Item config/llm.example.toml config/llm.toml
+# 编辑 config/llm.toml，填写 deepseek.api_key
+python -m pip install -e ".[all]"
 python -m uvicorn incident_agent.api:app --app-dir src --reload
 ```
 
@@ -41,16 +36,10 @@ Invoke-RestMethod http://127.0.0.1:8000/diagnose `
   -Body '{"service_id":"demo-oom","symptom":"请求失败且 GPU 显存接近满载，请判断原因。"}'
 ```
 
-默认 `MODEL_PROVIDER=rule`，不需要 API Key；它会使用确定性的本地模型替身跑通完整图和评测。使用本地 vLLM/SGLang 的 OpenAI-compatible endpoint 时：
-
-```text
-MODEL_PROVIDER=openai
-OPENAI_BASE_URL=http://localhost:8000/v1
-OPENAI_API_KEY=local-dev-key
-OPENAI_MODEL=你的模型名
-```
-
-此时模型通过 Function Calling 自主选择两个只读工具，最终使用 `IncidentReport` Structured Output。
+模型固定使用 `config/llm.toml` 中的 DeepSeek OpenAI-compatible API，通过
+Function Calling 自主选择两个只读工具，最终使用 `IncidentReport` Structured Output。
+如果配置文件或 API Key 缺失，`/health` 会返回 `status=degraded`，`/diagnose`
+会返回 HTTP 503 和 `LLM unavailable: ...`；项目不会生成离线假报告。
 
 ## MCP
 
@@ -59,11 +48,13 @@ OPENAI_MODEL=你的模型名
 - `get_metrics_snapshot(service_id)`
 - `search_logs(service_id, keyword, limit)`
 
-Agent 通过 `MCPToolClient` 作为 MCP Client 调用独立进程，工具服务端校验 service allowlist、限制日志返回数量并且不接受任意文件路径。全新环境尚未安装 SDK 时，客户端会启动同一独立进程的 JSON-RPC fallback，便于先跑通学习闭环；安装依赖后自动走官方 MCP stdio transport。
+Agent 通过 `MCPToolClient` 作为 MCP Client 调用独立进程。工具服务端校验 service
+allowlist、限制日志返回数量并且不接受任意文件路径；客户端和服务端均使用官方
+MCP Python SDK 的 stdio transport。
 
 ## RAG
 
-离线默认使用可解释的 `KeywordRetriever`，用于无模型、无网络测试。要使用项目简历中对应的 BGE + Chroma 实现：
+默认使用可解释的 `KeywordRetriever`，避免额外模型下载。要使用项目简历中对应的 BGE + Chroma 实现：
 
 ```powershell
 $env:RAG_PROVIDER = "chroma"
@@ -76,14 +67,14 @@ python scripts/build_index.py
 
 每次运行会写入 `data/traces.jsonl`，能看到 `rag.retrieve`、`model.decide`、`mcp.tool_call`、`structured_output` 等事件。配置 `LANGSMITH_TRACING=true` 和 `LANGSMITH_API_KEY` 后可额外发送到 LangSmith。
 
-运行 30 个固定案例：
+运行 30 个固定案例（需要在线 DeepSeek API Key）：
 
 ```powershell
 $env:PYTHONPATH = "src"
 python scripts/evaluate.py
 ```
 
-结果写入 `data/metrics.json`，包含故障类型准确率、工具选择准确率、Schema 成功率、证据覆盖率、平均延迟和 P95 延迟。简历数字必须来自这个文件或你自己的真实复测。
+结果写入 `data/metrics.json`，包含故障类型准确率、工具选择准确率、Schema 成功率、证据覆盖率、平均延迟和 P95 延迟。未配置在线模型时评测会直接以 `LLM unavailable` 退出，不会写入虚假指标。简历数字必须来自这个文件或你自己的真实复测。
 
 ## 测试
 
@@ -99,7 +90,7 @@ python -m pytest
 src/incident_agent/
   api.py             # FastAPI
   graph.py           # LangGraph 状态图和节点
-  models.py          # Rule provider / OpenAI-compatible provider
+  models.py          # 在线 DeepSeek + Function Calling + Structured Output
   mcp_client.py      # MCP Client
   mcp_server/        # FastMCP Server
   rag/               # Keyword + BGE/Chroma retriever
@@ -113,7 +104,7 @@ tests/               # 自动化测试
 
 ## 面试边界
 
-第一版选择单 Agent、Chroma 和本地 fixture，是为了优先完成可评测闭环。手写 while 循环也能完成这个小任务，LangGraph 的价值在于把状态、条件路由和可恢复节点显式化。MCP 负责工具协议，不负责权限；生产化还需要身份、审计、沙箱、多租户、真实集群适配和更严格的 Prompt Injection 防护。
+第一版选择单 Agent、Chroma 和本地 fixture，是为了优先完成可评测闭环。手写 while 循环也能完成这个小任务，LangGraph 的价值在于把状态、条件路由和可恢复节点显式化。MCP 负责工具协议，不负责权限；生产化还需要身份、审计、沙箱、多租户、真实集群适配和更严格的 Prompt Injection 防护。在线模型不可用时系统明确失败，避免把猜测伪装成诊断结果。
 
 ## 简历使用规则
 

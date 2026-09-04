@@ -3,6 +3,9 @@ import pytest
 from incident_agent.mcp_client import MCPToolClient
 
 
+pytest.importorskip("mcp")
+
+
 @pytest.mark.asyncio
 async def test_mcp_client_calls_a_separate_server_process():
     async with MCPToolClient() as client:
@@ -12,4 +15,3 @@ async def test_mcp_client_calls_a_separate_server_process():
             "search_logs", {"service_id": "demo-oom", "keyword": "out of memory", "limit": 5}
         )
         assert logs and "out of memory" in logs[0].lower()
-
