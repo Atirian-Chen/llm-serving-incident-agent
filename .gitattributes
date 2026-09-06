@@ -1,0 +1,2 @@
+# Preserve published trace bytes so their recorded SHA-256 is portable.
+reports/traces/*.jsonl -text whitespace=cr-at-eol

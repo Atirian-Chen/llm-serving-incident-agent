@@ -24,7 +24,7 @@ from incident_agent.rag.chunking import DocumentChunk, load_markdown_chunks  # n
 from incident_agent.rag.dense import DenseRetriever  # noqa: E402
 from incident_agent.rag.fusion import RRFFusion  # noqa: E402
 from incident_agent.rag.reranker import CrossEncoderReranker  # noqa: E402
-from incident_agent.rag.retriever import HybridRetriever, KeywordRetriever  # noqa: E402
+from incident_agent.rag.retriever import KeywordRetriever  # noqa: E402
 
 
 QUERIES: list[dict[str, Any]] = [
@@ -128,22 +128,30 @@ def _ndcg_at_3(results: list[dict[str, Any]], sources: list[str]) -> float:
 
 
 def _metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    total = len(rows)
     result: dict[str, Any] = {}
     for name in ("keyword", "bm25", "dense", "rrf", "hybrid_reranker"):
         method_rows = [row for row in rows if row["method"] == name]
+        if not method_rows:
+            continue
         ranks = [row["first_relevant_rank"] for row in method_rows if row["first_relevant_rank"] is not None]
         result[name] = {
             "queries": len(method_rows),
-            "recall_at_1": sum(row["first_relevant_rank"] is not None and row["first_relevant_rank"] <= 1 for row in method_rows) / total,
-            "recall_at_3": sum(row["first_relevant_rank"] is not None and row["first_relevant_rank"] <= 3 for row in method_rows) / total,
-            "recall_at_10": sum(row["first_relevant_rank"] is not None and row["first_relevant_rank"] <= 10 for row in method_rows) / total,
             "mrr": statistics.mean((1 / rank if rank else 0.0) for rank in [row["first_relevant_rank"] for row in method_rows]),
             "ndcg_at_3": statistics.mean(row["ndcg_at_3"] for row in method_rows),
             "average_latency_ms": statistics.mean(row["latency_ms"] for row in method_rows),
             "p95_latency_ms": sorted(row["latency_ms"] for row in method_rows)[max(0, math.ceil(len(method_rows) * 0.95) - 1)],
             "relevant_found": len(ranks),
         }
+        for k in (1, 3, 10):
+            result[name][f"recall_at_{k}"] = statistics.mean(
+                len({item["source"] for item in row["top_results"][:k]} & set(row["relevant_sources"]))
+                / len(set(row["relevant_sources"]))
+                for row in method_rows
+            )
+            result[name][f"hit_rate_at_{k}"] = statistics.mean(
+                row["first_relevant_rank"] is not None and row["first_relevant_rank"] <= k
+                for row in method_rows
+            )
     return result
 
 
@@ -183,7 +191,7 @@ async def _run(mode: str) -> dict[str, Any]:
                 bm_results = bm25.retrieve(case["query"], k=20)
                 dense_results = await dense.retrieve(case["query"], k=20)
                 fused = fusion.fuse(bm_results, dense_results, k=30)
-                results = fused if method == "rrf" else reranker.rerank(case["query"], fused, k=10)
+                results = fused[:10] if method == "rrf" else reranker.rerank(case["query"], fused, k=10)
             latency_ms = (time.perf_counter() - started) * 1000
             hit_ids = _source_hits(results, case["sources"])
             first_rank = next((index for index, item in enumerate(results, 1) if str(item.get("source")) in set(case["sources"])), None)
@@ -197,7 +205,7 @@ async def _run(mode: str) -> dict[str, Any]:
                 "ndcg_at_3": _ndcg_at_3(results, case["sources"]),
                 "latency_ms": round(latency_ms, 4),
                 "top_results": [
-                    {"chunk_id": item.get("chunk_id"), "source": item.get("source"), "title": item.get("title"), "score": item.get("reranker_score", item.get("rrf_score", item.get("dense_score", item.get("bm25_score"))))}
+                    {"chunk_id": item.get("chunk_id"), "source": item.get("source"), "title": item.get("title"), "score": item.get("reranker_score", item.get("rrf_score", item.get("dense_score", item.get("bm25_score", item.get("keyword_score")))))}
                     for item in results[:10]
                 ],
             })
@@ -224,19 +232,27 @@ def _write_markdown(path: Path, payload: dict[str, Any]) -> None:
         f"- 知识库 chunk：{payload['chunk_count']}",
         f"- Query：{payload['query_count']}",
         f"- Embedding：`{payload['models']['embedding']}`；Reranker：`{payload['models']['reranker']}`；Device：`{payload['models']['device']}`",
+        "",
+        "标注粒度是 runbook source，尚不是人工逐 chunk 标注。Recall@k = 每条 query 前 k 条结果覆盖的相关 source 数 / 标注相关 source 总数，然后对该方法的 query 取平均；同一 source 只计一次。Hit@k 表示前 k 条至少命中一个相关 source 的 query 比例。",
+        "MRR 在所有方法的 Top-10 上计算。NDCG@3 使用 source 去重增益，重复 source 不再得分。延迟包含各方法自身的检索阶段，不含模型加载；样本仅 24 条，不能据此推断生产性能。Keyword 是当前代码的 token-overlap 基线，不是原始中文单字分词版本。",
     ]
+    if payload.get("provenance", {}).get("metrics_recomputed"):
+        lines.extend(["", "本次从已保存的真实排序结果重算指标，沿用原始耗时，没有重新运行模型。旧版将命中数除以五种方法的总记录数（120），且将 Hit 误标为 Recall；此处已纠正。"])
     if payload.get("model_error"):
         lines.extend([f"- Real 模型未加载原因：`{payload['model_error']}`", "- 本结果是显式标记的 mock fallback，不代表真实模型效果。"])
     lines.extend([
         "",
-        "| 方法 | Recall@1 | Recall@3 | Recall@10 | MRR | NDCG@3 | 平均 ms | P95 ms |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| 方法 | Recall@1 | Recall@3 | Recall@10 | Hit@1 | Hit@3 | Hit@10 | MRR@10 | NDCG@3 | 平均 ms | P95 ms |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ])
     for name, values in payload["metrics"].items():
         lines.append(
             f"| {name} | {values['recall_at_1']:.3f} | {values['recall_at_3']:.3f} | {values['recall_at_10']:.3f} | "
+            f"{values['hit_rate_at_1']:.3f} | {values['hit_rate_at_3']:.3f} | {values['hit_rate_at_10']:.3f} | "
             f"{values['mrr']:.3f} | {values['ndcg_at_3']:.3f} | {values['average_latency_ms']:.3f} | {values['p95_latency_ms']:.3f} |"
         )
+    if all(payload["metrics"]["hybrid_reranker"][metric] < payload["metrics"]["rrf"][metric] for metric in ("mrr", "ndcg_at_3")):
+        lines.extend(["", "本组结果中，Cross-Encoder 的 MRR/NDCG@3 低于 RRF，不能宣称 reranker 带来了效果提升。应先复核相关性标注、chunk 粒度及重排输入，再做新的独立评测。"])
     lines.extend(["", "## Query 明细", "", "| Query | 方法 | 首个相关 rank | NDCG@3 | Top 来源 |", "| --- | --- | ---: | ---: | --- |"])
     for row in payload["queries"]:
         sources = ", ".join(str(item["source"]) for item in row["top_results"][:3])

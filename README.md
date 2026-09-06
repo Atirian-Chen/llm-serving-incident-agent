@@ -9,6 +9,13 @@ FastAPI → LangGraph → RAG → Function Calling → MCP Client/Server
 
 项目只覆盖四类故障：CUDA OOM、TTFT/P95 过高、Prefix Cache 命中率低、Unknown。指标和日志使用本地 fixture，工具全部只读，方便学习和复现；没有接入真实生产集群。
 
+## 展示入口
+
+- [真实在线流程 example.md](example.md)：用户输入、Hybrid 检索、DeepSeek 消息、MCP 调用、最终报告的时间线。
+- [报告与证据索引](reports/README.md)：24 条检索评测、1 条已核验 Hybrid 在线运行、30 条历史在线结果及原始日志。
+
+历史 30 条评测的日志缺少 Hybrid 阶段证据，不能作为当前 Hybrid 的 30 条通过记录。检索报告已修正旧版分母和 Recall/Hit 命名错误；本组 reranker 结果未优于 RRF。
+
 ## 运行
 
 需要 Python 3.11+。项目提供 E 盘本地环境脚本。首次安装只需要执行一次：
@@ -26,6 +33,9 @@ FastAPI → LangGraph → RAG → Function Calling → MCP Client/Server
 ```powershell
 Copy-Item config/llm.example.toml config/llm.toml
 # 编辑 config/llm.toml，填写 deepseek.api_key
+$env:HF_HOME = "$PWD\.runtime\huggingface"
+$env:TRANSFORMERS_CACHE = "$PWD\.runtime\huggingface"
+$env:TORCH_HOME = "$PWD\.runtime\torch"
 .\.venv-standard\Scripts\python.exe -m uvicorn incident_agent.api:app --app-dir src --reload
 ```
 
@@ -81,7 +91,7 @@ $env:TORCH_HOME = "$PWD\.runtime\torch"
 独立检索评测（不调用 LLM）可以选择真实模型或明确标注的 mock 模式：
 
 ```powershell
-.\.venv-standard\Scripts\python.exe scripts/rag_eval.py --mode auto
+.\.venv-standard\Scripts\python.exe scripts/rag_eval.py --mode real
 # 无法下载模型时显式使用：
 .\.venv-standard\Scripts\python.exe scripts/rag_eval.py --mode mock
 ```
@@ -91,10 +101,10 @@ RRF 和 Cross-Encoder 五条路径。
 
 ## Trace 与评测
 
-每次运行会写入 `data/traces.jsonl`。除阶段耗时外，日志保留原始用户请求、BM25/Dense/RRF/Reranker
-候选及分数、发送给 LLM 的完整消息、LLM 工具调用原消息、MCP 参数和返回的 tool message、
-工具结果后的最终 LLM 请求以及最终用户报告。`example.md` 是一条可读的代表性链路记录。
-配置 `LANGSMITH_TRACING=true` 和 `LANGSMITH_API_KEY` 后可额外发送到 LangSmith。
+每次运行会写入 `data/traces.jsonl`。日志保留原始请求、BM25/Dense/RRF 候选、最终 Top-3
+的 reranker 分数、LLM 请求消息与工具调用响应、MCP 参数和结果、最终解析后的报告。
+当前日志未记录所有候选的精排分数或最终 HTTP 原始响应；`tool_message` 是展示对象，实际工具结果通过下一轮 user JSON context 送入模型。
+`example.md` 从真实在线日志快照生成。快照保存在 `reports/traces/`，无需在线调用即可查看与重建。
 
 运行 30 个固定案例（需要在线 DeepSeek API Key）：
 
@@ -102,7 +112,7 @@ RRF 和 Cross-Encoder 五条路径。
 .\scripts\evaluate.ps1
 ```
 
-结果写入 `data/metrics.json`，包含故障类型准确率、工具选择准确率、Schema 成功率、证据覆盖率、平均延迟和 P95 延迟。未配置在线模型时评测会直接以 `LLM unavailable` 退出，不会写入虚假指标。简历数字必须来自这个文件或你自己的真实复测。
+结果写入 `reports/e2e_results.json/.md` 和本地 `data/metrics.json`，包含故障类型、工具名称、Schema、证据关键词、耗时等检查。RAG 来源根据 trace 中实际的 `rag.hybrid` 事件记录；未核验的 provider 不会标为 hybrid。配置或在线调用失败会记录失败，不生成离线诊断。
 
 ## 测试
 
@@ -131,6 +141,12 @@ fixtures/            # 模拟指标和日志
 eval/                # 30 个固定案例
 scripts/             # 建索引、评测
 tests/               # 自动化测试
+reports/             # 可提交的报告与证据索引
+  traces/            # 已检查的展示日志快照
+example.md           # 真实在线单案例展示
+data/                # 本地日志和 Chroma 索引（不提交）
+.runtime/            # E 盘缓存和临时文件（不提交）
+.venv-standard/      # 本地依赖（不提交）
 ```
 
 ## 面试边界

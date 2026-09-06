@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import math
+import os
 import statistics
 import sys
 import time
@@ -162,12 +163,34 @@ def format_metric(value: Any, digits: int = 2) -> str:
     return str(value)
 
 
-def write_review(path: Path, metrics: dict[str, Any], rows: list[dict[str, Any]]) -> None:
+def inspect_rag_trace(path: Path) -> dict[str, Any]:
+    records = load_cases(path)
+    run_ids = {record["run_id"] for record in records if record.get("name") == "agent.start"}
+    hybrids = [record for record in records if record.get("name") == "rag.hybrid"]
+    observed = {record["run_id"] for record in hybrids} & run_ids
+    all_verified = bool(run_ids) and observed == run_ids
+    top_ks = {record["payload"].get("final_top_k") for record in hybrids}
+    return {
+        "provider": "hybrid" if all_verified else None,
+        "verification": "all_runs_have_hybrid_trace" if all_verified else "hybrid_not_verified",
+        "runs": len(run_ids),
+        "hybrid_runs": len(observed),
+        "final_top_k": next(iter(top_ks)) if all_verified and len(top_ks) == 1 else None,
+        "stage_trace": path.as_posix(),
+        "note": "Provider is derived from recorded events; absent events do not establish a provider.",
+    }
+
+
+def write_review(
+    path: Path, metrics: dict[str, Any], rows: list[dict[str, Any]],
+    rag: dict[str, Any] | None = None,
+) -> None:
     ordered = sorted(rows, key=lambda row: int(row["index"]))
     lines = [
         "# DeepSeek 在线 Agent 评测复习记录",
         "",
-        "本文件来自真实在线调用。失败案例按失败计入全部 30 个案例的准确率分母；未执行的案例不会被伪装成成功。",
+        f"本文件来自真实在线调用。失败案例计入全部 {metrics['total_cases']} 个案例的准确率分母。指标与日志来自本地 fixture，评测不代表真实生产集群上的诊断准确率。",
+        "工具选择准确率仅检查需要的工具名称是否出现在报告中；证据覆盖率仅检查关键词，不等同于工具参数正确或根因推理正确。",
         "",
         "## 汇总",
         "",
@@ -183,6 +206,24 @@ def write_review(path: Path, metrics: dict[str, Any], rows: list[dict[str, Any]]
         f"- 成功案例 P95 延迟：{format_metric(metrics['p95_latency_ms_successful'])} ms",
         "",
     ]
+    if rag is not None:
+        trace_link = Path(rag["stage_trace"])
+        if trace_link.is_absolute():
+            trace_link = Path(os.path.relpath(trace_link, path.parent))
+        lines.extend([
+            "## 运行来源",
+            "",
+            f"- Trace：[{trace_link.name}]({trace_link.as_posix()})",
+            f"- 有 Hybrid 阶段事件的运行：{rag['hybrid_runs']}/{rag['runs']}",
+            f"- 验证状态：`{rag['verification']}`",
+            "",
+        ])
+        if rag["verification"] != "all_runs_have_hybrid_trace":
+            lines.extend([
+                "这组是历史在线结果，配套 trace 没有提供完整 Hybrid 阶段证据，RAG provider、strict 设置和最终 Top-k 均无法由这组日志核验。此前追加的 strict hybrid / Top-3 标记已移除。",
+                "已验证的真实 Hybrid 单案例见 [online_smoke.md](online_smoke.md) 和根目录 [example.md](../example.md)。单案例不能替代 30 条重测；本组也未覆盖独立的 SGLang 5xx、NCCL 故障 fixture。",
+                "",
+            ])
     examples = [row for row in ordered if row["case_id"] in {"oom-01", "ttft-01"}]
     lines.append("## 两个完整在线案例")
     for row in examples:
@@ -210,7 +251,7 @@ def write_review(path: Path, metrics: dict[str, Any], rows: list[dict[str, Any]]
     lines.extend(
         [
             "",
-            "## 30 条案例明细",
+            f"## {metrics['total_cases']} 条案例明细",
             "",
             "| # | case_id | 状态 | 预测 | 正确 | 工具正确 | Schema | 延迟 ms | 错误 |",
             "| --- | --- | --- | --- | --- | --- | --- | ---: | --- |",
@@ -244,12 +285,7 @@ async def run(root: Path, concurrency: int) -> dict[str, Any]:
             payload = {
                 "metrics": summarize(rows, len(cases)),
                 "cases": sorted(rows, key=lambda row: row["index"]),
-                "rag": {
-                    "provider": "hybrid",
-                    "strict": True,
-                    "final_top_k": 3,
-                    "stage_trace": "data/online_evaluation_trace.jsonl",
-                },
+                "rag": inspect_rag_trace(trace_path),
             }
             write_json(output_path, payload)
 
@@ -287,20 +323,15 @@ async def run(root: Path, concurrency: int) -> dict[str, Any]:
     payload = {
         "metrics": metrics,
         "cases": rows,
-        "rag": {
-            "provider": "hybrid",
-            "strict": True,
-            "final_top_k": 3,
-            "stage_trace": "data/online_evaluation_trace.jsonl",
-        },
+        "rag": inspect_rag_trace(trace_path),
     }
     write_json(output_path, payload)
     write_json(root / "data" / "metrics.json", payload)
-    write_review(review_path, metrics, rows)
+    write_review(review_path, metrics, rows, payload["rag"])
     reports = root / "reports"
     reports.mkdir(exist_ok=True)
     write_json(reports / "e2e_results.json", payload)
-    write_review(reports / "e2e_results.md", metrics, rows)
+    write_review(reports / "e2e_results.md", metrics, rows, payload["rag"])
     return payload
 
 

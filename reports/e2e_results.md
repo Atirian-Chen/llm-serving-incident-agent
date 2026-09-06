@@ -1,8 +1,7 @@
 # DeepSeek 在线 Agent 评测复习记录
 
-本文件来自真实在线调用。失败案例按失败计入全部 30 个案例的准确率分母；未执行的案例不会被伪装成成功。
-
-RAG 配置：严格 `hybrid`，BM25 + BGE/Chroma + RRF + Cross-Encoder，最终 Top-3。最新可读的完整阶段 trace 见根目录 [`example.md`](../example.md)；该示例明确标注了测试替身与真实组件边界。
+本文件来自真实在线调用。失败案例计入全部 30 个案例的准确率分母。指标与日志来自本地 fixture，评测不代表真实生产集群上的诊断准确率。
+工具选择准确率仅检查需要的工具名称是否出现在报告中；证据覆盖率仅检查关键词，不等同于工具参数正确或根因推理正确。
 
 ## 汇总
 
@@ -16,6 +15,15 @@ RAG 配置：严格 `hybrid`，BM25 + BGE/Chroma + RRF + Cross-Encoder，最终 
 - 全部已完成案例 P95 延迟：90918.42 ms
 - 成功案例平均延迟：46276.21 ms
 - 成功案例 P95 延迟：90918.42 ms
+
+## 运行来源
+
+- Trace：[legacy_e2e.jsonl](traces/legacy_e2e.jsonl)
+- 有 Hybrid 阶段事件的运行：0/30
+- 验证状态：`hybrid_not_verified`
+
+这组是历史在线结果，配套 trace 没有提供完整 Hybrid 阶段证据，RAG provider、strict 设置和最终 Top-k 均无法由这组日志核验。此前追加的 strict hybrid / Top-3 标记已移除。
+已验证的真实 Hybrid 单案例见 [online_smoke.md](online_smoke.md) 和根目录 [example.md](../example.md)。单案例不能替代 30 条重测；本组也未覆盖独立的 SGLang 5xx、NCCL 故障 fixture。
 
 ## 两个完整在线案例
 

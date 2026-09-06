@@ -1,0 +1,264 @@
+{
+  "run_id": "28c990bb-c43e-44bc-afa7-25ab78190a2a",
+  "started_at_utc": "2026-09-04T16:02:46.709000+00:00",
+  "verification_mode": "saved_online_trace_audit",
+  "new_online_requests": 0,
+  "sample_count": 1,
+  "request": {
+    "service_id": "demo-high-ttft",
+    "symptom": "vLLM 请求排队增长，TTFT 和 P99 延迟升高"
+  },
+  "models": {
+    "llm": [
+      "deepseek-v4-flash"
+    ],
+    "embedding": "BAAI/bge-small-zh-v1.5",
+    "reranker": "BAAI/bge-reranker-v2-m3",
+    "device": "cuda"
+  },
+  "checks": {
+    "hybrid_trace_present": true,
+    "final_top_three": true,
+    "cuda_recorded": true,
+    "deepseek_response_metadata_present": true,
+    "mcp_arguments_valid": true,
+    "final_report_recorded": true
+  },
+  "all_checks_passed": true,
+  "duration_ms": 68308.07,
+  "tool_call_count": 6,
+  "tool_calls": [
+    {
+      "name": "get_metrics_snapshot",
+      "arguments": {
+        "service_id": "demo-high-ttft"
+      },
+      "result": {
+        "service_id": "demo-high-ttft",
+        "gpu_memory_utilization": 0.78,
+        "waiting_requests": 64,
+        "ttft_p95_ms": 1850,
+        "prefix_cache_hit_rate": 0.42,
+        "request_success_rate": 0.995,
+        "kv_cache_free_blocks": 320
+      },
+      "tool_message": {
+        "role": "tool",
+        "name": "get_metrics_snapshot",
+        "content": {
+          "service_id": "demo-high-ttft",
+          "gpu_memory_utilization": 0.78,
+          "waiting_requests": 64,
+          "ttft_p95_ms": 1850,
+          "prefix_cache_hit_rate": 0.42,
+          "request_success_rate": 0.995,
+          "kv_cache_free_blocks": 320
+        }
+      }
+    },
+    {
+      "name": "search_logs",
+      "arguments": {
+        "service_id": "demo-high-ttft",
+        "keyword": "scheduler",
+        "limit": 20
+      },
+      "result": [
+        "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+      ],
+      "tool_message": {
+        "role": "tool",
+        "name": "search_logs",
+        "content": [
+          "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+        ]
+      }
+    },
+    {
+      "name": "search_logs",
+      "arguments": {
+        "service_id": "demo-high-ttft",
+        "keyword": "waiting",
+        "limit": 20
+      },
+      "result": [
+        "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+      ],
+      "tool_message": {
+        "role": "tool",
+        "name": "search_logs",
+        "content": [
+          "2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"
+        ]
+      }
+    },
+    {
+      "name": "search_logs",
+      "arguments": {
+        "service_id": "demo-high-ttft",
+        "keyword": "TPOT",
+        "limit": 20
+      },
+      "result": [],
+      "tool_message": {
+        "role": "tool",
+        "name": "search_logs",
+        "content": []
+      }
+    },
+    {
+      "name": "search_logs",
+      "arguments": {
+        "service_id": "demo-high-ttft",
+        "keyword": "decode",
+        "limit": 20
+      },
+      "result": [
+        "2026-08-27T09:10:04Z INFO decode workers healthy"
+      ],
+      "tool_message": {
+        "role": "tool",
+        "name": "search_logs",
+        "content": [
+          "2026-08-27T09:10:04Z INFO decode workers healthy"
+        ]
+      }
+    },
+    {
+      "name": "search_logs",
+      "arguments": {
+        "service_id": "demo-high-ttft",
+        "keyword": "throughput",
+        "limit": 20
+      },
+      "result": [],
+      "tool_message": {
+        "role": "tool",
+        "name": "search_logs",
+        "content": []
+      }
+    }
+  ],
+  "final_results": [
+    {
+      "chunk_id": "vllm_queue_batching.md::115::故障现象",
+      "text": "vLLM 请求持续处于 waiting，scheduler queue length 增长，吞吐没有随并发提升。短请求也出现高 TTFT，常见于 max_num_batched_tokens 过小或 decode token 被长 prompt 挤压。",
+      "source": "vllm_queue_batching.md",
+      "title": "vLLM 请求排队与批处理",
+      "section": "故障现象",
+      "metadata": {
+        "source": "vllm_queue_batching.md",
+        "title": "vLLM 请求排队与批处理",
+        "section": "故障现象"
+      },
+      "bm25_score": 8.975357099415039,
+      "bm25_rank": 1,
+      "rrf_score": 0.03252247488101534,
+      "dense_score": 0.714513897895813,
+      "dense_rank": 2,
+      "rrf_rank": 2,
+      "reranker_score": 0.8923693895339966,
+      "reranker_rank": 1
+    },
+    {
+      "source": "scheduler_queue.md",
+      "section": "常见信号",
+      "title": "Scheduler queue backlog",
+      "chunk_id": "scheduler_queue.md::90::常见信号",
+      "text": "- waiting requests 持续增长，TTFT P95 同步变差。\n- 日志出现 scheduler queue timeout 或 batch waiting。",
+      "dense_score": 0.6747003197669983,
+      "dense_rank": 6,
+      "metadata": {
+        "source": "scheduler_queue.md",
+        "section": "常见信号",
+        "title": "Scheduler queue backlog"
+      },
+      "rrf_score": 0.015151515151515152,
+      "bm25_score": null,
+      "bm25_rank": null,
+      "rrf_rank": 14,
+      "reranker_score": 0.8472697138786316,
+      "reranker_rank": 2
+    },
+    {
+      "chunk_id": "prefill_decode_latency.md::70::故障现象",
+      "text": "TTFT 显著升高而 TPOT 正常，通常是 prefill 排队或长 prompt；TPOT 升高而 TTFT 正常，通常是 decode 阶段 GPU 争用、KV cache 或通信瓶颈。",
+      "source": "prefill_decode_latency.md",
+      "title": "Prefill 与 Decode 延迟",
+      "section": "故障现象",
+      "metadata": {
+        "source": "prefill_decode_latency.md",
+        "title": "Prefill 与 Decode 延迟",
+        "section": "故障现象"
+      },
+      "bm25_score": 8.67292230641757,
+      "bm25_rank": 2,
+      "rrf_score": 0.03252247488101534,
+      "dense_score": 0.7302896976470947,
+      "dense_rank": 1,
+      "rrf_rank": 1,
+      "reranker_score": 0.8323298692703247,
+      "reranker_rank": 3
+    }
+  ],
+  "report": {
+    "incident_type": "high_ttft",
+    "severity": "medium",
+    "root_cause": "vLLM scheduler queue 存在持续 backlog（waiting_requests=64），导致请求等待 prefill slot 时间增加，TTFT P95 升至 1850ms。GPU 内存利用率 0.78、KV cache 空闲块 320、decode workers healthy，排除显存/KV cache 或 decode 侧瓶颈；但具体触发因素（如 max_num_batched_tokens 过小、长 prompt 挤压、并发超载）因缺少 TPOT 与 throughput 数据，尚无法确认。",
+    "evidence": [
+      {
+        "source": "get_metrics_snapshot",
+        "detail": "waiting_requests=64, ttft_p95_ms=1850"
+      },
+      {
+        "source": "get_metrics_snapshot",
+        "detail": "gpu_memory_utilization=0.78, kv_cache_free_blocks=320, request_success_rate=0.995"
+      },
+      {
+        "source": "search_logs",
+        "detail": "WARN scheduler queue waiting_requests=64"
+      },
+      {
+        "source": "search_logs",
+        "detail": "INFO decode workers healthy"
+      },
+      {
+        "source": "runbook scheduler_queue.md",
+        "detail": "waiting requests 持续增长，TTFT P95 同步变差；日志出现 scheduler queue timeout 或 batch waiting"
+      },
+      {
+        "source": "runbook vllm_queue_batching.md",
+        "detail": "vLLM 请求持续处于 waiting，scheduler queue length 增长，吞吐没有随并发提升。短请求也出现高 TTFT"
+      },
+      {
+        "source": "runbook prefill_decode_latency.md",
+        "detail": "TTFT 显著升高而 TPOT 正常，通常是 prefill 排队或长 prompt；TPOT 升高而 TTFT 正常，通常是 decode 阶段 GPU 争用"
+      }
+    ],
+    "recommended_actions": [
+      "采集 TPOT 指标，确认 TPOT 是否正常，以区分 prefill 排队/长 prompt 与 decode 侧问题。",
+      "监控 scheduler queue length 与 TTFT 变化趋势，确认队列是否持续增长。",
+      "检查 vLLM 批处理参数（如 max_num_batched_tokens、max_num_seqs）是否过小，必要时调优以提升 prefill 吞吐。",
+      "分析是否存在超长 prompt 或高并发请求挤压短请求的 prefill，考虑拆分 prompt 或优化调度策略。",
+      "根据实际负载评估是否需要扩容或增加 vLLM 实例数。"
+    ],
+    "tools_used": [
+      "get_metrics_snapshot",
+      "search_logs",
+      "search_logs",
+      "search_logs",
+      "search_logs",
+      "search_logs"
+    ],
+    "confidence": 0.78
+  },
+  "limitations": [
+    "One saved online run, not a new 30-case evaluation.",
+    "MCP reads fixture metrics/logs, not a production cluster.",
+    "The trace stores reranker scores only for final Top-3, not all candidates.",
+    "The final llm.raw_response is a parsed IncidentReport, not a raw HTTP response.",
+    "Tool results enter the next user JSON context; the logged tool_message is not a native API ToolMessage."
+  ],
+  "trace": "traces/online_smoke.jsonl",
+  "trace_sha256": "57c491a88ddde23de5ec884c6099d04460eec3d7a4c6337f8ae4c98d6b82b58b"
+}

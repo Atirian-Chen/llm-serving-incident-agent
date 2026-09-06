@@ -1,0 +1,862 @@
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "agent.start", "timestamp_ms": 1788515503610, "payload": {"service_id": "demo-oom"}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "agent.start", "timestamp_ms": 1788515503617, "payload": {"service_id": "demo-oom"}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "rag.retrieve.start", "timestamp_ms": 1788515503619, "payload": {"query": "服务出现 CUDA out of memory，显存接近满载。"}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "rag.retrieve.end", "timestamp_ms": 1788515503620, "payload": {"duration_ms": 0.64}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "rag.retrieve.start", "timestamp_ms": 1788515503620, "payload": {"query": "请求失败并提示 OOM，请分析显存问题。"}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "rag.retrieve.end", "timestamp_ms": 1788515503621, "payload": {"duration_ms": 0.68}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "model.decide.start", "timestamp_ms": 1788515503622, "payload": {"step": 0}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "model.decide.start", "timestamp_ms": 1788515503623, "payload": {"step": 0}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "model.decide.end", "timestamp_ms": 1788515505246, "payload": {"duration_ms": 1624.62}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "mcp.tool_call.start", "timestamp_ms": 1788515505249, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "model.decide.end", "timestamp_ms": 1788515505762, "payload": {"duration_ms": 2139.1}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.start", "timestamp_ms": 1788515505764, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 1053.78}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "mcp.tool_call.end", "timestamp_ms": 1788515506304, "payload": {"duration_ms": 1055.23}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "mcp.tool_call.start", "timestamp_ms": 1788515506305, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 759.55}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.end", "timestamp_ms": 1788515506525, "payload": {"duration_ms": 760.93}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.start", "timestamp_ms": 1788515506525, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OOM", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 755.61}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "mcp.tool_call.end", "timestamp_ms": 1788515507062, "payload": {"duration_ms": 757.05}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "model.decide.start", "timestamp_ms": 1788515507063, "payload": {"step": 1}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OOM", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100", "2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"], "latency_ms": 786.6}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.end", "timestamp_ms": 1788515507313, "payload": {"duration_ms": 788.0}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.start", "timestamp_ms": 1788515507314, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 729.27}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "mcp.tool_call.end", "timestamp_ms": 1788515508044, "payload": {"duration_ms": 730.67}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "model.decide.start", "timestamp_ms": 1788515508046, "payload": {"step": 1}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "model.decide.end", "timestamp_ms": 1788515516543, "payload": {"duration_ms": 9480.7}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "structured_output.start", "timestamp_ms": 1788515516546, "payload": {}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "model.decide.end", "timestamp_ms": 1788515521757, "payload": {"duration_ms": 13711.14}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "structured_output.start", "timestamp_ms": 1788515521759, "payload": {}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "structured_output.end", "timestamp_ms": 1788515535788, "payload": {"duration_ms": 19242.47}}
+{"run_id": "ac5ce385-8540-4071-a6b5-67cd96247000", "name": "agent.end", "timestamp_ms": 1788515535789, "payload": {"duration_ms": 32179.92, "steps": 2}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "agent.start", "timestamp_ms": 1788515535796, "payload": {"service_id": "demo-oom"}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "rag.retrieve.start", "timestamp_ms": 1788515535797, "payload": {"query": "KV Cache 分配失败，推理服务拒绝请求。"}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "rag.retrieve.end", "timestamp_ms": 1788515535798, "payload": {"duration_ms": 0.68}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "model.decide.start", "timestamp_ms": 1788515535800, "payload": {"step": 0}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "model.decide.end", "timestamp_ms": 1788515538704, "payload": {"duration_ms": 2904.65}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.start", "timestamp_ms": 1788515538706, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 716.85}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.end", "timestamp_ms": 1788515539425, "payload": {"duration_ms": 718.18}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.start", "timestamp_ms": 1788515539425, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 10}, "output": [], "latency_ms": 717.41}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.end", "timestamp_ms": 1788515540144, "payload": {"duration_ms": 718.63}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.start", "timestamp_ms": 1788515540144, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 10}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 741.52}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.end", "timestamp_ms": 1788515540887, "payload": {"duration_ms": 742.91}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.start", "timestamp_ms": 1788515540888, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "kv cache", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "kv cache", "limit": 10}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache", "2026-08-27T09:00:04Z WARN kv cache free blocks=12"], "latency_ms": 735.22}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "mcp.tool_call.end", "timestamp_ms": 1788515541625, "payload": {"duration_ms": 736.86}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "model.decide.start", "timestamp_ms": 1788515541626, "payload": {"step": 1}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "structured_output.end", "timestamp_ms": 1788515548077, "payload": {"duration_ms": 26317.83}}
+{"run_id": "afd1a4c3-795e-439f-b8a4-d2fed7ec9714", "name": "agent.end", "timestamp_ms": 1788515548079, "payload": {"duration_ms": 44461.04, "steps": 2}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "agent.start", "timestamp_ms": 1788515548085, "payload": {"service_id": "demo-oom"}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "rag.retrieve.start", "timestamp_ms": 1788515548087, "payload": {"query": "显存 97%，部分请求失败。"}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "rag.retrieve.end", "timestamp_ms": 1788515548087, "payload": {"duration_ms": 0.56}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "model.decide.start", "timestamp_ms": 1788515548089, "payload": {"step": 0}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "model.decide.end", "timestamp_ms": 1788515550136, "payload": {"duration_ms": 2048.09}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.start", "timestamp_ms": 1788515550139, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 703.88}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.end", "timestamp_ms": 1788515550843, "payload": {"duration_ms": 705.12}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.start", "timestamp_ms": 1788515550844, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}, "output": [], "latency_ms": 716.28}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.end", "timestamp_ms": 1788515551562, "payload": {"duration_ms": 717.7}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.start", "timestamp_ms": 1788515551562, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 728.1}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "mcp.tool_call.end", "timestamp_ms": 1788515552291, "payload": {"duration_ms": 729.34}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "model.decide.start", "timestamp_ms": 1788515552293, "payload": {"step": 1}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "model.decide.end", "timestamp_ms": 1788515553487, "payload": {"duration_ms": 11859.94}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "structured_output.start", "timestamp_ms": 1788515553489, "payload": {}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "structured_output.end", "timestamp_ms": 1788515560817, "payload": {"duration_ms": 7328.96}}
+{"run_id": "8602d78b-ef6a-404f-b1a7-8c2878f185fe", "name": "agent.end", "timestamp_ms": 1788515560819, "payload": {"duration_ms": 25023.17, "steps": 2}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "agent.start", "timestamp_ms": 1788515560825, "payload": {"service_id": "demo-oom"}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "rag.retrieve.start", "timestamp_ms": 1788515560827, "payload": {"query": "日志中有 CUDA out of memory。"}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "rag.retrieve.end", "timestamp_ms": 1788515560827, "payload": {"duration_ms": 0.96}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "model.decide.start", "timestamp_ms": 1788515560830, "payload": {"step": 0}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "model.decide.end", "timestamp_ms": 1788515563180, "payload": {"duration_ms": 2349.34}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.start", "timestamp_ms": 1788515563182, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 743.05}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.end", "timestamp_ms": 1788515563926, "payload": {"duration_ms": 744.61}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.start", "timestamp_ms": 1788515563927, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "model.decide.end", "timestamp_ms": 1788515564062, "payload": {"duration_ms": 11769.2}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "structured_output.start", "timestamp_ms": 1788515564064, "payload": {}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 728.74}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.end", "timestamp_ms": 1788515564657, "payload": {"duration_ms": 730.44}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.start", "timestamp_ms": 1788515564658, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}, "output": [], "latency_ms": 710.38}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "mcp.tool_call.end", "timestamp_ms": 1788515565369, "payload": {"duration_ms": 711.56}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "model.decide.start", "timestamp_ms": 1788515565371, "payload": {"step": 1}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "structured_output.end", "timestamp_ms": 1788515569993, "payload": {"duration_ms": 5929.49}}
+{"run_id": "ef0b662f-9502-4a6f-8582-600803253a02", "name": "agent.end", "timestamp_ms": 1788515569995, "payload": {"duration_ms": 21910.26, "steps": 2}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "agent.start", "timestamp_ms": 1788515570002, "payload": {"service_id": "demo-oom"}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "rag.retrieve.start", "timestamp_ms": 1788515570004, "payload": {"query": "GPU memory utilization 接近 1，请排查。"}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "rag.retrieve.end", "timestamp_ms": 1788515570005, "payload": {"duration_ms": 0.79}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "model.decide.start", "timestamp_ms": 1788515570007, "payload": {"step": 0}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "model.decide.end", "timestamp_ms": 1788515571617, "payload": {"duration_ms": 1610.08}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.start", "timestamp_ms": 1788515571619, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 747.35}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.end", "timestamp_ms": 1788515572367, "payload": {"duration_ms": 748.92}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.start", "timestamp_ms": 1788515572369, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 827.88}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.end", "timestamp_ms": 1788515573198, "payload": {"duration_ms": 829.69}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.start", "timestamp_ms": 1788515573199, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}, "output": [], "latency_ms": 812.42}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "mcp.tool_call.end", "timestamp_ms": 1788515574013, "payload": {"duration_ms": 813.63}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "model.decide.start", "timestamp_ms": 1788515574014, "payload": {"step": 1}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "model.decide.end", "timestamp_ms": 1788515576416, "payload": {"duration_ms": 11044.87}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "structured_output.start", "timestamp_ms": 1788515576418, "payload": {}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "model.decide.end", "timestamp_ms": 1788515583345, "payload": {"duration_ms": 9331.29}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "structured_output.start", "timestamp_ms": 1788515583347, "payload": {}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "structured_output.end", "timestamp_ms": 1788515605472, "payload": {"duration_ms": 29054.42}}
+{"run_id": "90861972-531b-4a75-b7d9-0ebfa0f975e7", "name": "agent.end", "timestamp_ms": 1788515605473, "payload": {"duration_ms": 44648.29, "steps": 2}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "agent.start", "timestamp_ms": 1788515605481, "payload": {"service_id": "demo-oom"}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "rag.retrieve.start", "timestamp_ms": 1788515605483, "payload": {"query": "max_num_seqs 增大后服务频繁 OOM。"}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "rag.retrieve.end", "timestamp_ms": 1788515605484, "payload": {"duration_ms": 0.8}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "model.decide.start", "timestamp_ms": 1788515605487, "payload": {"step": 0}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "model.decide.end", "timestamp_ms": 1788515608371, "payload": {"duration_ms": 2884.2}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.start", "timestamp_ms": 1788515608372, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 786.1}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.end", "timestamp_ms": 1788515609160, "payload": {"duration_ms": 787.59}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.start", "timestamp_ms": 1788515609160, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OOM", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OOM", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR request_failed code=CUDA_OOM request_id=oom-100", "2026-08-27T09:00:03Z INFO retry scheduled request_id=oom-100"], "latency_ms": 791.58}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.end", "timestamp_ms": 1788515609953, "payload": {"duration_ms": 792.93}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.start", "timestamp_ms": 1788515609954, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "scheduler queue", "limit": 20}, "output": [], "latency_ms": 807.12}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "mcp.tool_call.end", "timestamp_ms": 1788515610763, "payload": {"duration_ms": 808.55}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "model.decide.start", "timestamp_ms": 1788515610764, "payload": {"step": 1}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "structured_output.end", "timestamp_ms": 1788515615408, "payload": {"duration_ms": 32061.29}}
+{"run_id": "3519512f-744f-4365-8c54-00a651e438ba", "name": "agent.end", "timestamp_ms": 1788515615410, "payload": {"duration_ms": 45407.6, "steps": 2}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "agent.start", "timestamp_ms": 1788515615417, "payload": {"service_id": "demo-oom"}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "rag.retrieve.start", "timestamp_ms": 1788515615419, "payload": {"query": "请求失败，怀疑 KV Cache 容量不足。"}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "rag.retrieve.end", "timestamp_ms": 1788515615420, "payload": {"duration_ms": 1.04}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "model.decide.start", "timestamp_ms": 1788515615426, "payload": {"step": 0}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "model.decide.end", "timestamp_ms": 1788515617486, "payload": {"duration_ms": 2059.25}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.start", "timestamp_ms": 1788515617488, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-oom"}, "output": {"service_id": "demo-oom", "gpu_memory_utilization": 0.97, "waiting_requests": 18, "ttft_p95_ms": 920, "prefix_cache_hit_rate": 0.05, "request_success_rate": 0.81, "kv_cache_free_blocks": 12}, "latency_ms": 749.98}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.end", "timestamp_ms": 1788515618240, "payload": {"duration_ms": 751.96}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.start", "timestamp_ms": 1788515618241, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "CUDA out of memory", "limit": 20}, "output": ["2026-08-27T09:00:02Z ERROR CUDA out of memory while allocating KV cache"], "latency_ms": 703.54}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.end", "timestamp_ms": 1788515618945, "payload": {"duration_ms": 704.76}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.start", "timestamp_ms": 1788515618946, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "OutOfMemoryError", "limit": 20}, "output": [], "latency_ms": 725.8}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.end", "timestamp_ms": 1788515619673, "payload": {"duration_ms": 727.26}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.start", "timestamp_ms": 1788515619674, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-oom", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 722.22}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "mcp.tool_call.end", "timestamp_ms": 1788515620398, "payload": {"duration_ms": 724.06}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "model.decide.start", "timestamp_ms": 1788515620400, "payload": {"step": 1}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "model.decide.end", "timestamp_ms": 1788515620779, "payload": {"duration_ms": 10014.51}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "structured_output.start", "timestamp_ms": 1788515620780, "payload": {}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "model.decide.end", "timestamp_ms": 1788515632561, "payload": {"duration_ms": 12161.62}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "structured_output.start", "timestamp_ms": 1788515632563, "payload": {}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "structured_output.end", "timestamp_ms": 1788515640683, "payload": {"duration_ms": 8120.56}}
+{"run_id": "a7522060-9f17-4eeb-960e-6337a9e1d10c", "name": "agent.end", "timestamp_ms": 1788515640685, "payload": {"duration_ms": 25267.85, "steps": 2}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "agent.start", "timestamp_ms": 1788515640694, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "rag.retrieve.start", "timestamp_ms": 1788515640695, "payload": {"query": "TTFT P95 达到 1850ms，等待队列很长。"}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "rag.retrieve.end", "timestamp_ms": 1788515640696, "payload": {"duration_ms": 0.65}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "model.decide.start", "timestamp_ms": 1788515640699, "payload": {"step": 0}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "model.decide.end", "timestamp_ms": 1788515642517, "payload": {"duration_ms": 1818.4}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.start", "timestamp_ms": 1788515642519, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 742.44}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.end", "timestamp_ms": 1788515643263, "payload": {"duration_ms": 743.83}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.start", "timestamp_ms": 1788515643263, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 709.07}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.end", "timestamp_ms": 1788515643975, "payload": {"duration_ms": 711.61}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.start", "timestamp_ms": 1788515643975, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}, "output": [], "latency_ms": 737.75}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.end", "timestamp_ms": 1788515644714, "payload": {"duration_ms": 739.27}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.start", "timestamp_ms": 1788515644715, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 784.03}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "mcp.tool_call.end", "timestamp_ms": 1788515645501, "payload": {"duration_ms": 785.47}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "model.decide.start", "timestamp_ms": 1788515645502, "payload": {"step": 1}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "structured_output.end", "timestamp_ms": 1788515651065, "payload": {"duration_ms": 30284.85}}
+{"run_id": "136ded5f-dd9d-4da9-8e19-102799b5ae12", "name": "agent.end", "timestamp_ms": 1788515651067, "payload": {"duration_ms": 45585.22, "steps": 2}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "agent.start", "timestamp_ms": 1788515651073, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "rag.retrieve.start", "timestamp_ms": 1788515651075, "payload": {"query": "首 token 延迟变高，scheduler queue backlog。"}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "rag.retrieve.end", "timestamp_ms": 1788515651076, "payload": {"duration_ms": 0.94}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "model.decide.start", "timestamp_ms": 1788515651078, "payload": {"step": 0}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "model.decide.end", "timestamp_ms": 1788515652675, "payload": {"duration_ms": 7172.99}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "structured_output.start", "timestamp_ms": 1788515652677, "payload": {}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "model.decide.end", "timestamp_ms": 1788515653781, "payload": {"duration_ms": 2703.79}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.start", "timestamp_ms": 1788515653783, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 714.69}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.end", "timestamp_ms": 1788515654499, "payload": {"duration_ms": 716.01}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.start", "timestamp_ms": 1788515654500, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 797.11}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.end", "timestamp_ms": 1788515655299, "payload": {"duration_ms": 799.13}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.start", "timestamp_ms": 1788515655300, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 732.64}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "mcp.tool_call.end", "timestamp_ms": 1788515656034, "payload": {"duration_ms": 734.11}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "model.decide.start", "timestamp_ms": 1788515656036, "payload": {"step": 1}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "model.decide.end", "timestamp_ms": 1788515666182, "payload": {"duration_ms": 10146.14}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "structured_output.start", "timestamp_ms": 1788515666183, "payload": {}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "structured_output.end", "timestamp_ms": 1788515670153, "payload": {"duration_ms": 17476.28}}
+{"run_id": "7848e359-9a7b-4561-9dc7-5d7c7a3a13bc", "name": "agent.end", "timestamp_ms": 1788515670154, "payload": {"duration_ms": 29460.94, "steps": 2}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "agent.start", "timestamp_ms": 1788515670161, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "rag.retrieve.start", "timestamp_ms": 1788515670163, "payload": {"query": "大量请求排队但错误率正常。"}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "rag.retrieve.end", "timestamp_ms": 1788515670164, "payload": {"duration_ms": 0.75}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "model.decide.start", "timestamp_ms": 1788515670168, "payload": {"step": 0}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "model.decide.end", "timestamp_ms": 1788515673320, "payload": {"duration_ms": 3152.31}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.start", "timestamp_ms": 1788515673322, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 806.37}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.end", "timestamp_ms": 1788515674132, "payload": {"duration_ms": 809.59}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.start", "timestamp_ms": 1788515674132, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 775.75}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.end", "timestamp_ms": 1788515674909, "payload": {"duration_ms": 777.18}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.start", "timestamp_ms": 1788515674910, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64", "2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 796.88}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "mcp.tool_call.end", "timestamp_ms": 1788515675708, "payload": {"duration_ms": 798.26}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "model.decide.start", "timestamp_ms": 1788515675709, "payload": {"step": 1}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "structured_output.end", "timestamp_ms": 1788515687635, "payload": {"duration_ms": 21451.84}}
+{"run_id": "96947c18-038f-40e4-b1b3-84eaabf9f515", "name": "agent.end", "timestamp_ms": 1788515687637, "payload": {"duration_ms": 36563.87, "steps": 2}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "agent.start", "timestamp_ms": 1788515687643, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "rag.retrieve.start", "timestamp_ms": 1788515687644, "payload": {"query": "prefill backlog 导致延迟升高。"}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "rag.retrieve.end", "timestamp_ms": 1788515687645, "payload": {"duration_ms": 0.56}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "model.decide.start", "timestamp_ms": 1788515687647, "payload": {"step": 0}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "model.decide.end", "timestamp_ms": 1788515690437, "payload": {"duration_ms": 2789.81}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.start", "timestamp_ms": 1788515690438, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 785.13}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.end", "timestamp_ms": 1788515691225, "payload": {"duration_ms": 786.53}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.start", "timestamp_ms": 1788515691225, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "model.decide.end", "timestamp_ms": 1788515691424, "payload": {"duration_ms": 15714.86}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "structured_output.start", "timestamp_ms": 1788515691427, "payload": {}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 20}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 780.94}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.end", "timestamp_ms": 1788515692008, "payload": {"duration_ms": 782.38}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.start", "timestamp_ms": 1788515692008, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 753.03}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.end", "timestamp_ms": 1788515692764, "payload": {"duration_ms": 755.2}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.start", "timestamp_ms": 1788515692765, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}, "output": [], "latency_ms": 687.07}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "mcp.tool_call.end", "timestamp_ms": 1788515693454, "payload": {"duration_ms": 689.25}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "model.decide.start", "timestamp_ms": 1788515693455, "payload": {"step": 1}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "model.decide.end", "timestamp_ms": 1788515706161, "payload": {"duration_ms": 12705.71}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "structured_output.start", "timestamp_ms": 1788515706162, "payload": {}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "structured_output.end", "timestamp_ms": 1788515723715, "payload": {"duration_ms": 17552.77}}
+{"run_id": "7c9f0513-f31f-4237-adf9-9ef56e5c2530", "name": "agent.end", "timestamp_ms": 1788515723717, "payload": {"duration_ms": 36074.09, "steps": 2}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "agent.start", "timestamp_ms": 1788515723727, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "rag.retrieve.start", "timestamp_ms": 1788515723728, "payload": {"query": "TTFT 超过服务目标，请诊断。"}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "rag.retrieve.end", "timestamp_ms": 1788515723730, "payload": {"duration_ms": 1.02}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "model.decide.start", "timestamp_ms": 1788515723733, "payload": {"step": 0}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "model.decide.end", "timestamp_ms": 1788515726737, "payload": {"duration_ms": 3003.91}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.start", "timestamp_ms": 1788515726739, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 721.29}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.end", "timestamp_ms": 1788515727461, "payload": {"duration_ms": 722.71}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.start", "timestamp_ms": 1788515727462, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 733.45}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.end", "timestamp_ms": 1788515728198, "payload": {"duration_ms": 735.02}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.start", "timestamp_ms": 1788515728199, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 20}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 716.94}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.end", "timestamp_ms": 1788515728918, "payload": {"duration_ms": 718.71}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.start", "timestamp_ms": 1788515728918, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 20}, "output": [], "latency_ms": 686.76}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "mcp.tool_call.end", "timestamp_ms": 1788515729606, "payload": {"duration_ms": 688.08}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "model.decide.start", "timestamp_ms": 1788515729607, "payload": {"step": 1}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "structured_output.end", "timestamp_ms": 1788515730602, "payload": {"duration_ms": 39175.97}}
+{"run_id": "5145917b-7f11-4760-8b78-54b0b8803873", "name": "agent.end", "timestamp_ms": 1788515730605, "payload": {"duration_ms": 60443.05, "steps": 2}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "agent.start", "timestamp_ms": 1788515730610, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "rag.retrieve.start", "timestamp_ms": 1788515730612, "payload": {"query": "服务 queue time 很高，P95 latency 变差。"}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "rag.retrieve.end", "timestamp_ms": 1788515730612, "payload": {"duration_ms": 0.58}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.start", "timestamp_ms": 1788515730617, "payload": {"step": 0}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.end", "timestamp_ms": 1788515733109, "payload": {"duration_ms": 2492.6}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515733111, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 751.45}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515733864, "payload": {"duration_ms": 753.03}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515733864, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 10}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 737.22}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515734603, "payload": {"duration_ms": 738.5}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515734604, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batch waiting", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batch waiting", "limit": 10}, "output": [], "latency_ms": 749.04}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515735354, "payload": {"duration_ms": 750.8}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.start", "timestamp_ms": 1788515735355, "payload": {"step": 1}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "model.decide.end", "timestamp_ms": 1788515743850, "payload": {"duration_ms": 14242.13}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "structured_output.start", "timestamp_ms": 1788515743851, "payload": {}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.end", "timestamp_ms": 1788515746908, "payload": {"duration_ms": 11552.77}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515746910, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "timeout", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "timeout", "limit": 10}, "output": [], "latency_ms": 738.98}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515747651, "payload": {"duration_ms": 740.41}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515747651, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill backlog", "limit": 10}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 702.26}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515748355, "payload": {"duration_ms": 703.77}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515748356, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "arrival", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "arrival", "limit": 10}, "output": [], "latency_ms": 713.73}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515749070, "payload": {"duration_ms": 715.11}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.start", "timestamp_ms": 1788515749071, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 10}, "output": [], "latency_ms": 756.33}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "mcp.tool_call.end", "timestamp_ms": 1788515749829, "payload": {"duration_ms": 757.54}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.start", "timestamp_ms": 1788515749830, "payload": {"step": 2}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "structured_output.end", "timestamp_ms": 1788515755568, "payload": {"duration_ms": 11717.79}}
+{"run_id": "c9a76b9c-7908-4248-aeba-dc66c7932022", "name": "agent.end", "timestamp_ms": 1788515755569, "payload": {"duration_ms": 31842.98, "steps": 2}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "agent.start", "timestamp_ms": 1788515755576, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "rag.retrieve.start", "timestamp_ms": 1788515755578, "payload": {"query": "batch 等待时间过长，首 token 很慢。"}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "rag.retrieve.end", "timestamp_ms": 1788515755578, "payload": {"duration_ms": 0.6}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "model.decide.start", "timestamp_ms": 1788515755582, "payload": {"step": 0}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "model.decide.end", "timestamp_ms": 1788515758453, "payload": {"duration_ms": 2870.84}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.start", "timestamp_ms": 1788515758456, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 796.31}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.end", "timestamp_ms": 1788515759254, "payload": {"duration_ms": 797.86}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.start", "timestamp_ms": 1788515759254, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 10}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 778.56}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.end", "timestamp_ms": 1788515760035, "payload": {"duration_ms": 780.27}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.start", "timestamp_ms": 1788515760035, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 10}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 818.42}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.end", "timestamp_ms": 1788515760855, "payload": {"duration_ms": 819.67}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.start", "timestamp_ms": 1788515760856, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching delay", "limit": 10}, "output": [], "latency_ms": 755.95}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "mcp.tool_call.end", "timestamp_ms": 1788515761612, "payload": {"duration_ms": 757.3}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "model.decide.start", "timestamp_ms": 1788515761614, "payload": {"step": 1}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "model.decide.end", "timestamp_ms": 1788515764191, "payload": {"duration_ms": 14360.61}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "structured_output.start", "timestamp_ms": 1788515764192, "payload": {}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "model.decide.end", "timestamp_ms": 1788515770936, "payload": {"duration_ms": 9321.85}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "structured_output.start", "timestamp_ms": 1788515770937, "payload": {}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "structured_output.end", "timestamp_ms": 1788515782635, "payload": {"duration_ms": 18442.47}}
+{"run_id": "deab4bb5-36de-4fe1-b594-6172738f7b6a", "name": "agent.end", "timestamp_ms": 1788515782637, "payload": {"duration_ms": 52026.77, "steps": 3}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "agent.start", "timestamp_ms": 1788515782699, "payload": {"service_id": "demo-high-ttft"}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "rag.retrieve.start", "timestamp_ms": 1788515782701, "payload": {"query": "scheduler queue waiting_requests=64。"}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "rag.retrieve.end", "timestamp_ms": 1788515782702, "payload": {"duration_ms": 0.8}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "model.decide.start", "timestamp_ms": 1788515782706, "payload": {"step": 0}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "model.decide.end", "timestamp_ms": 1788515784883, "payload": {"duration_ms": 2178.03}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.start", "timestamp_ms": 1788515784885, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-high-ttft"}, "output": {"service_id": "demo-high-ttft", "gpu_memory_utilization": 0.78, "waiting_requests": 64, "ttft_p95_ms": 1850, "prefix_cache_hit_rate": 0.42, "request_success_rate": 0.995, "kv_cache_free_blocks": 320}, "latency_ms": 764.21}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.end", "timestamp_ms": 1788515785651, "payload": {"duration_ms": 765.87}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.start", "timestamp_ms": 1788515785652, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "scheduler queue", "limit": 20}, "output": ["2026-08-27T09:10:01Z WARN scheduler queue waiting_requests=64"], "latency_ms": 746.31}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.end", "timestamp_ms": 1788515786400, "payload": {"duration_ms": 747.9}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.start", "timestamp_ms": 1788515786400, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "batching", "limit": 20}, "output": [], "latency_ms": 772.29}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.end", "timestamp_ms": 1788515787174, "payload": {"duration_ms": 773.83}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.start", "timestamp_ms": 1788515787175, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-high-ttft", "keyword": "prefill", "limit": 20}, "output": ["2026-08-27T09:10:02Z WARN prefill backlog queue_time_ms=1700"], "latency_ms": 719.37}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "mcp.tool_call.end", "timestamp_ms": 1788515787896, "payload": {"duration_ms": 720.94}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "model.decide.start", "timestamp_ms": 1788515787898, "payload": {"step": 1}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "structured_output.end", "timestamp_ms": 1788515796513, "payload": {"duration_ms": 25575.31}}
+{"run_id": "7efd9a74-6189-4cc8-b6e3-5d456e76a485", "name": "agent.end", "timestamp_ms": 1788515796515, "payload": {"duration_ms": 40938.43, "steps": 2}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "agent.start", "timestamp_ms": 1788515796521, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "rag.retrieve.start", "timestamp_ms": 1788515796523, "payload": {"query": "Prefix cache 命中率只有 4%。"}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "rag.retrieve.end", "timestamp_ms": 1788515796524, "payload": {"duration_ms": 0.72}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.start", "timestamp_ms": 1788515796528, "payload": {"step": 0}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.end", "timestamp_ms": 1788515799900, "payload": {"duration_ms": 3372.21}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515799902, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 716.9}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515800620, "payload": {"duration_ms": 718.43}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515800621, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled"], "latency_ms": 703.63}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515801327, "payload": {"duration_ms": 705.19}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515801327, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 738.91}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515802067, "payload": {"duration_ms": 740.12}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515802068, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "KV", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "KV", "limit": 20}, "output": [], "latency_ms": 718.59}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515802788, "payload": {"duration_ms": 719.73}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.start", "timestamp_ms": 1788515802789, "payload": {"step": 1}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "model.decide.end", "timestamp_ms": 1788515803658, "payload": {"duration_ms": 15760.29}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "structured_output.start", "timestamp_ms": 1788515803660, "payload": {}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.end", "timestamp_ms": 1788515810337, "payload": {"duration_ms": 7547.75}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515810340, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 724.14}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515811065, "payload": {"duration_ms": 725.61}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515811066, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache key", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache key", "limit": 20}, "output": [], "latency_ms": 755.52}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515811823, "payload": {"duration_ms": 756.97}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515811823, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 761.93}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515812587, "payload": {"duration_ms": 763.97}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515812588, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit rate", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit rate", "limit": 20}, "output": [], "latency_ms": 750.32}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515813340, "payload": {"duration_ms": 751.81}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.start", "timestamp_ms": 1788515813341, "payload": {"step": 2}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.end", "timestamp_ms": 1788515826512, "payload": {"duration_ms": 13170.73}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515826513, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer_version", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer_version", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 730.26}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515827245, "payload": {"duration_ms": 731.57}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515827246, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 731.89}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515827979, "payload": {"duration_ms": 733.13}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515827980, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "structured_output.end", "timestamp_ms": 1788515828104, "payload": {"duration_ms": 24443.35}}
+{"run_id": "947d3c2b-db18-4922-ad79-39ce91c7e421", "name": "agent.end", "timestamp_ms": 1788515828105, "payload": {"duration_ms": 45405.35, "steps": 2}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "agent.start", "timestamp_ms": 1788515828110, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "rag.retrieve.start", "timestamp_ms": 1788515828112, "payload": {"query": "相同 system prompt 没有复用缓存。"}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "rag.retrieve.end", "timestamp_ms": 1788515828112, "payload": {"duration_ms": 0.62}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.start", "timestamp_ms": 1788515828117, "payload": {"step": 0}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}, "output": [], "latency_ms": 782.78}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515828763, "payload": {"duration_ms": 784.23}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.start", "timestamp_ms": 1788515828766, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "dynamic", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "dynamic", "limit": 20}, "output": ["2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 740.82}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "mcp.tool_call.end", "timestamp_ms": 1788515829508, "payload": {"duration_ms": 742.55}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.start", "timestamp_ms": 1788515829510, "payload": {"step": 3}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.end", "timestamp_ms": 1788515831018, "payload": {"duration_ms": 2901.84}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515831020, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 762.0}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515831784, "payload": {"duration_ms": 763.52}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515831784, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled"], "latency_ms": 732.0}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515832518, "payload": {"duration_ms": 733.39}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515832518, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}, "output": [], "latency_ms": 712.88}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515833232, "payload": {"duration_ms": 714.35}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515833233, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache miss", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache miss", "limit": 20}, "output": [], "latency_ms": 701.34}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515833936, "payload": {"duration_ms": 702.57}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.start", "timestamp_ms": 1788515833938, "payload": {"step": 1}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.end", "timestamp_ms": 1788515842429, "payload": {"duration_ms": 8491.5}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515842431, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 774.2}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515843207, "payload": {"duration_ms": 776.15}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515843207, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "disable", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "disable", "limit": 20}, "output": [], "latency_ms": 704.48}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515843913, "payload": {"duration_ms": 705.84}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.start", "timestamp_ms": 1788515843914, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "WARN", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "WARN", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50", "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 744.95}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "mcp.tool_call.end", "timestamp_ms": 1788515844660, "payload": {"duration_ms": 746.2}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.start", "timestamp_ms": 1788515844661, "payload": {"step": 2}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "model.decide.end", "timestamp_ms": 1788515845980, "payload": {"duration_ms": 16470.38}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "structured_output.start", "timestamp_ms": 1788515845982, "payload": {}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "structured_output.end", "timestamp_ms": 1788515855475, "payload": {"duration_ms": 9493.15}}
+{"run_id": "e269b08b-a54b-42c2-9c9c-f0553345a0f1", "name": "agent.end", "timestamp_ms": 1788515855476, "payload": {"duration_ms": 58955.24, "steps": 4}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "agent.start", "timestamp_ms": 1788515855484, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "rag.retrieve.start", "timestamp_ms": 1788515855486, "payload": {"query": "prefix cache hit rate 很低，请排查路由。"}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "rag.retrieve.end", "timestamp_ms": 1788515855487, "payload": {"duration_ms": 0.76}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515855493, "payload": {"step": 0}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "model.decide.end", "timestamp_ms": 1788515858262, "payload": {"duration_ms": 13600.49}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "structured_output.start", "timestamp_ms": 1788515858265, "payload": {}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515858417, "payload": {"duration_ms": 2924.17}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515858419, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 904.84}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515859326, "payload": {"duration_ms": 906.57}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515859326, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_cache_hit_rate", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_cache_hit_rate", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 850.44}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515860177, "payload": {"duration_ms": 851.69}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515860178, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}, "output": [], "latency_ms": 815.5}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515860996, "payload": {"duration_ms": 817.03}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515860996, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 819.86}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515861817, "payload": {"duration_ms": 821.17}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515861818, "payload": {"step": 1}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515872920, "payload": {"duration_ms": 11101.86}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515872922, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 794.4}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515873718, "payload": {"duration_ms": 795.8}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515873719, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 779.09}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515874499, "payload": {"duration_ms": 780.44}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515874500, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "node", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "node", "limit": 20}, "output": [], "latency_ms": 704.81}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515875206, "payload": {"duration_ms": 706.33}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515875207, "payload": {"step": 2}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "structured_output.end", "timestamp_ms": 1788515875444, "payload": {"duration_ms": 17179.46}}
+{"run_id": "24850df2-4631-4652-89c5-4ef6af3b486e", "name": "agent.end", "timestamp_ms": 1788515875446, "payload": {"duration_ms": 47335.76, "steps": 3}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "agent.start", "timestamp_ms": 1788515875454, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "rag.retrieve.start", "timestamp_ms": 1788515875456, "payload": {"query": "发现动态字段导致 prefix 不稳定。"}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "rag.retrieve.end", "timestamp_ms": 1788515875457, "payload": {"duration_ms": 0.99}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "model.decide.start", "timestamp_ms": 1788515875462, "payload": {"step": 0}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "model.decide.end", "timestamp_ms": 1788515878130, "payload": {"duration_ms": 2668.04}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.start", "timestamp_ms": 1788515878133, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 837.63}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.end", "timestamp_ms": 1788515878972, "payload": {"duration_ms": 839.18}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.start", "timestamp_ms": 1788515878973, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 30}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 30}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 883.85}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.end", "timestamp_ms": 1788515879859, "payload": {"duration_ms": 885.47}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.start", "timestamp_ms": 1788515879860, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 30}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 30}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 789.41}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "mcp.tool_call.end", "timestamp_ms": 1788515880651, "payload": {"duration_ms": 790.85}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "model.decide.start", "timestamp_ms": 1788515880652, "payload": {"step": 1}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515883910, "payload": {"duration_ms": 8702.66}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515883912, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 884.16}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515884799, "payload": {"duration_ms": 886.22}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515884800, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}, "output": [], "latency_ms": 899.24}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515885701, "payload": {"duration_ms": 901.02}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515885702, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 871.84}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515886575, "payload": {"duration_ms": 873.31}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515886576, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}, "output": [], "latency_ms": 860.02}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515887437, "payload": {"duration_ms": 861.58}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515887438, "payload": {"step": 3}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "model.decide.end", "timestamp_ms": 1788515891989, "payload": {"duration_ms": 11336.57}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "structured_output.start", "timestamp_ms": 1788515891991, "payload": {}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515894241, "payload": {"duration_ms": 6803.11}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515894246, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 1087.41}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515895335, "payload": {"duration_ms": 1089.25}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515895336, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}, "output": [], "latency_ms": 816.88}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515896155, "payload": {"duration_ms": 818.98}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515896156, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "key", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "key", "limit": 20}, "output": [], "latency_ms": 967.6}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515897125, "payload": {"duration_ms": 969.61}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515897126, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "affinity", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "affinity", "limit": 20}, "output": [], "latency_ms": 799.08}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515897927, "payload": {"duration_ms": 800.93}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515897928, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "distribut", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "distribut", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 971.21}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515898901, "payload": {"duration_ms": 973.21}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515898903, "payload": {"step": 4}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "structured_output.end", "timestamp_ms": 1788515900547, "payload": {"duration_ms": 8556.64}}
+{"run_id": "b5c0f10b-e386-4859-a889-9d2bdf870832", "name": "agent.end", "timestamp_ms": 1788515900549, "payload": {"duration_ms": 25094.37, "steps": 2}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "agent.start", "timestamp_ms": 1788515900557, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "rag.retrieve.start", "timestamp_ms": 1788515900559, "payload": {"query": "缓存命中率低于预期，tokenizer 版本需要检查。"}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "rag.retrieve.end", "timestamp_ms": 1788515900560, "payload": {"duration_ms": 0.9}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515900564, "payload": {"step": 0}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515903137, "payload": {"duration_ms": 2572.43}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515903139, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 888.08}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515904028, "payload": {"duration_ms": 889.71}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515904029, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 826.75}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515904857, "payload": {"duration_ms": 828.21}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515904858, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 853.21}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515905712, "payload": {"duration_ms": 854.51}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515905714, "payload": {"step": 1}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515916884, "payload": {"duration_ms": 11170.7}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515916886, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_len", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_len", "limit": 20}, "output": [], "latency_ms": 703.17}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515917590, "payload": {"duration_ms": 704.43}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515917590, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "route", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 729.69}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515918322, "payload": {"duration_ms": 731.01}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515918323, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache_key", "limit": 20}}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515918576, "payload": {"duration_ms": 19673.37}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515918577, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "round", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache_key", "limit": 20}, "output": [], "latency_ms": 719.3}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515919044, "payload": {"duration_ms": 721.28}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515919045, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "version", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "round", "limit": 20}, "output": [], "latency_ms": 758.5}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515919338, "payload": {"duration_ms": 760.47}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515919339, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prompt", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "version", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 684.85}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515919731, "payload": {"duration_ms": 686.21}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515919732, "payload": {"step": 2}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prompt", "limit": 20}, "output": ["2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 704.73}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515920044, "payload": {"duration_ms": 706.19}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515920045, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "consistent", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "consistent", "limit": 20}, "output": [], "latency_ms": 703.78}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515920751, "payload": {"duration_ms": 705.38}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515920752, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "length", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "length", "limit": 20}, "output": [], "latency_ms": 741.21}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515921495, "payload": {"duration_ms": 742.61}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.start", "timestamp_ms": 1788515921496, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "request_id", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "request_id", "limit": 20}, "output": [], "latency_ms": 761.17}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "mcp.tool_call.end", "timestamp_ms": 1788515922258, "payload": {"duration_ms": 762.87}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.start", "timestamp_ms": 1788515922260, "payload": {"step": 5}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515930826, "payload": {"duration_ms": 11093.4}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515930827, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replica", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 740.52}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515931569, "payload": {"duration_ms": 741.79}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515931570, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "1.2.0", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "1.2.0", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 730.03}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515932302, "payload": {"duration_ms": 731.55}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515932302, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "miss", "limit": 20}, "output": [], "latency_ms": 704.5}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515933008, "payload": {"duration_ms": 705.78}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515933009, "payload": {"step": 3}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "model.decide.end", "timestamp_ms": 1788515936737, "payload": {"duration_ms": 14477.81}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "structured_output.start", "timestamp_ms": 1788515936739, "payload": {}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515944336, "payload": {"duration_ms": 11326.76}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515944337, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer_version", "limit": 50}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer_version", "limit": 50}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 868.06}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515945207, "payload": {"duration_ms": 869.75}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515945208, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "1.1", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "1.1", "limit": 20}, "output": [], "latency_ms": 773.76}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515945984, "payload": {"duration_ms": 775.69}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515945984, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "shared", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "shared", "limit": 20}, "output": [], "latency_ms": 736.31}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515946722, "payload": {"duration_ms": 737.67}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515946723, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}, "output": [], "latency_ms": 769.38}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515947494, "payload": {"duration_ms": 770.75}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515947495, "payload": {"step": 4}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "structured_output.end", "timestamp_ms": 1788515966197, "payload": {"duration_ms": 29457.19}}
+{"run_id": "72fd8927-8612-42ae-bb0b-c6c20fd500cf", "name": "agent.end", "timestamp_ms": 1788515966197, "payload": {"duration_ms": 110713.42, "steps": 6}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "agent.start", "timestamp_ms": 1788515966206, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "rag.retrieve.start", "timestamp_ms": 1788515966208, "payload": {"query": "prefix cache miss 增多。"}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "rag.retrieve.end", "timestamp_ms": 1788515966208, "payload": {"duration_ms": 0.86}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.start", "timestamp_ms": 1788515966212, "payload": {"step": 0}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515967467, "payload": {"duration_ms": 19971.68}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515967469, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "INFO", "limit": 50}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "INFO", "limit": 50}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0", "2026-08-27T09:20:04Z INFO route distribution replicas=4", "2026-08-27T09:20:05Z INFO request_success_rate=0.998"], "latency_ms": 743.29}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515968214, "payload": {"duration_ms": 744.98}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515968215, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "WARN", "limit": 20}}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.end", "timestamp_ms": 1788515968852, "payload": {"duration_ms": 2639.16}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515968854, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "WARN", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50", "2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 766.1}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515968983, "payload": {"duration_ms": 767.66}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.start", "timestamp_ms": 1788515968983, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replicas", "limit": 20}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 710.02}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515969565, "payload": {"duration_ms": 711.26}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515969566, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache miss", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "replicas", "limit": 20}, "output": ["2026-08-27T09:20:04Z INFO route distribution replicas=4"], "latency_ms": 691.51}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "mcp.tool_call.end", "timestamp_ms": 1788515969676, "payload": {"duration_ms": 692.7}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.start", "timestamp_ms": 1788515969678, "payload": {"step": 5}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache miss", "limit": 20}, "output": [], "latency_ms": 726.69}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515970293, "payload": {"duration_ms": 728.05}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515970294, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 716.47}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515971012, "payload": {"duration_ms": 717.99}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.start", "timestamp_ms": 1788515971013, "payload": {"step": 1}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.end", "timestamp_ms": 1788515977440, "payload": {"duration_ms": 6426.48}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515977441, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 700.91}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515978143, "payload": {"duration_ms": 702.14}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515978144, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}, "output": [], "latency_ms": 725.67}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515978871, "payload": {"duration_ms": 727.0}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788515978872, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 739.21}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788515979612, "payload": {"duration_ms": 740.74}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.start", "timestamp_ms": 1788515979614, "payload": {"step": 2}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "model.decide.end", "timestamp_ms": 1788515987334, "payload": {"duration_ms": 17656.39}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "structured_output.start", "timestamp_ms": 1788515987336, "payload": {}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "structured_output.end", "timestamp_ms": 1788515991466, "payload": {"duration_ms": 4130.18}}
+{"run_id": "bdf02ba1-0236-40ee-b2c3-e6038456c1e3", "name": "agent.end", "timestamp_ms": 1788515991468, "payload": {"duration_ms": 90910.81, "steps": 6}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "agent.start", "timestamp_ms": 1788515991474, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "rag.retrieve.start", "timestamp_ms": 1788515991475, "payload": {"query": "共享前缀反复执行 prefill。"}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "rag.retrieve.end", "timestamp_ms": 1788515991476, "payload": {"duration_ms": 0.92}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.start", "timestamp_ms": 1788515991481, "payload": {"step": 0}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.end", "timestamp_ms": 1788515993399, "payload": {"duration_ms": 1917.3}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788515993401, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 738.53}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788515994141, "payload": {"duration_ms": 740.04}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788515994142, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "cache", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 706.87}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788515994850, "payload": {"duration_ms": 708.21}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788515994851, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}, "output": [], "latency_ms": 760.12}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788515995612, "payload": {"duration_ms": 761.56}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.start", "timestamp_ms": 1788515995614, "payload": {"step": 1}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.end", "timestamp_ms": 1788516000772, "payload": {"duration_ms": 5157.23}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788516000773, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "tokenizer", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 713.79}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788516001488, "payload": {"duration_ms": 715.17}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788516001489, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "routing", "limit": 20}, "output": [], "latency_ms": 730.1}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788516002220, "payload": {"duration_ms": 731.42}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.start", "timestamp_ms": 1788516002221, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled", "2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 707.45}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "mcp.tool_call.end", "timestamp_ms": 1788516002930, "payload": {"duration_ms": 708.93}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.start", "timestamp_ms": 1788516002931, "payload": {"step": 2}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.end", "timestamp_ms": 1788516005141, "payload": {"duration_ms": 25527.39}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788516005143, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hash", "limit": 20}, "output": [], "latency_ms": 751.21}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788516005895, "payload": {"duration_ms": 752.8}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788516005896, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "hit", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 720.05}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788516006618, "payload": {"duration_ms": 721.83}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788516006619, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "version", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "version", "limit": 20}, "output": ["2026-08-27T09:20:02Z INFO tokenizer_version=1.2.0"], "latency_ms": 727.24}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788516007348, "payload": {"duration_ms": 728.96}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.start", "timestamp_ms": 1788516007349, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prompt", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prompt", "limit": 20}, "output": ["2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 734.03}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "mcp.tool_call.end", "timestamp_ms": 1788516008085, "payload": {"duration_ms": 735.74}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.start", "timestamp_ms": 1788516008086, "payload": {"step": 3}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "model.decide.end", "timestamp_ms": 1788516019683, "payload": {"duration_ms": 11597.27}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "structured_output.start", "timestamp_ms": 1788516019686, "payload": {}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "model.decide.end", "timestamp_ms": 1788516020872, "payload": {"duration_ms": 17941.22}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "structured_output.start", "timestamp_ms": 1788516020875, "payload": {}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "structured_output.end", "timestamp_ms": 1788516043783, "payload": {"duration_ms": 24097.61}}
+{"run_id": "3a839b7b-6f42-425e-a899-bf58805b089f", "name": "agent.end", "timestamp_ms": 1788516043785, "payload": {"duration_ms": 77578.56, "steps": 4}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "agent.start", "timestamp_ms": 1788516043791, "payload": {"service_id": "demo-prefix-cache"}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "rag.retrieve.start", "timestamp_ms": 1788516043793, "payload": {"query": "prefix_cache_hit_rate=0.04。"}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "rag.retrieve.end", "timestamp_ms": 1788516043793, "payload": {"duration_ms": 0.52}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.start", "timestamp_ms": 1788516043798, "payload": {"step": 0}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.end", "timestamp_ms": 1788516045714, "payload": {"duration_ms": 1916.29}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516045716, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-prefix-cache"}, "output": {"service_id": "demo-prefix-cache", "gpu_memory_utilization": 0.71, "waiting_requests": 5, "ttft_p95_ms": 420, "prefix_cache_hit_rate": 0.04, "request_success_rate": 0.998, "kv_cache_free_blocks": 512}, "latency_ms": 763.31}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516046482, "payload": {"duration_ms": 765.55}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516046483, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_cache_hit_rate", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix_cache_hit_rate", "limit": 20}, "output": ["2026-08-27T09:20:01Z WARN prefix_cache_hit_rate=0.04 expected_gt=0.50"], "latency_ms": 823.1}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516047307, "payload": {"duration_ms": 824.74}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516047308, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefill", "limit": 20}, "output": [], "latency_ms": 823.72}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516048134, "payload": {"duration_ms": 825.45}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.start", "timestamp_ms": 1788516048135, "payload": {"step": 1}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "structured_output.end", "timestamp_ms": 1788516053451, "payload": {"duration_ms": 32576.42}}
+{"run_id": "1e758877-a364-4a66-9881-b59257944d86", "name": "agent.end", "timestamp_ms": 1788516053453, "payload": {"duration_ms": 61979.71, "steps": 3}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "agent.start", "timestamp_ms": 1788516053459, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "rag.retrieve.start", "timestamp_ms": 1788516053460, "payload": {"query": "服务偶尔抖动，但没有明显错误信号。"}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "rag.retrieve.end", "timestamp_ms": 1788516053461, "payload": {"duration_ms": 0.6}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.start", "timestamp_ms": 1788516053467, "payload": {"step": 0}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.end", "timestamp_ms": 1788516056030, "payload": {"duration_ms": 7895.54}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516056032, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 759.83}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516056794, "payload": {"duration_ms": 761.47}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516056795, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "system prompt", "limit": 20}}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.end", "timestamp_ms": 1788516056970, "payload": {"duration_ms": 3503.5}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516056974, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "system prompt", "limit": 20}, "output": ["2026-08-27T09:20:03Z WARN dynamic system prompt field detected tenant_timestamp"], "latency_ms": 826.38}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516057623, "payload": {"duration_ms": 828.01}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.start", "timestamp_ms": 1788516057624, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 818.02}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516057794, "payload": {"duration_ms": 820.48}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516057795, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-prefix-cache", "keyword": "prefix cache", "limit": 20}, "output": ["2026-08-27T09:20:00Z INFO prefix cache enabled"], "latency_ms": 718.96}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "mcp.tool_call.end", "timestamp_ms": 1788516058344, "payload": {"duration_ms": 720.38}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.start", "timestamp_ms": 1788516058345, "payload": {"step": 2}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 758.65}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516058555, "payload": {"duration_ms": 760.24}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516058556, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "gpu memory", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "gpu memory", "limit": 20}, "output": ["2026-08-27T09:30:01Z INFO gpu memory utilization=0.56"], "latency_ms": 733.37}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516059290, "payload": {"duration_ms": 734.7}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.start", "timestamp_ms": 1788516059291, "payload": {"step": 1}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.end", "timestamp_ms": 1788516069896, "payload": {"duration_ms": 10604.5}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516069899, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "ttft", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "ttft", "limit": 20}, "output": [], "latency_ms": 711.79}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516070613, "payload": {"duration_ms": 713.59}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516070614, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "latency", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "latency", "limit": 20}, "output": [], "latency_ms": 704.1}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516071319, "payload": {"duration_ms": 705.32}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.start", "timestamp_ms": 1788516071320, "payload": {"step": 2}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "model.decide.end", "timestamp_ms": 1788516071740, "payload": {"duration_ms": 13394.87}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "structured_output.start", "timestamp_ms": 1788516071742, "payload": {}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "structured_output.end", "timestamp_ms": 1788516085725, "payload": {"duration_ms": 13983.23}}
+{"run_id": "8cce2844-e376-423a-967a-94ace00e5d03", "name": "agent.end", "timestamp_ms": 1788516085726, "payload": {"duration_ms": 41935.05, "steps": 3}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "agent.start", "timestamp_ms": 1788516085732, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "rag.retrieve.start", "timestamp_ms": 1788516085734, "payload": {"query": "请分析这次不明原因的告警。"}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "rag.retrieve.end", "timestamp_ms": 1788516085735, "payload": {"duration_ms": 0.63}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "model.decide.start", "timestamp_ms": 1788516085746, "payload": {"step": 0}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "model.decide.end", "timestamp_ms": 1788516088242, "payload": {"duration_ms": 2495.86}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516088244, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 789.98}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516089035, "payload": {"duration_ms": 791.38}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516089036, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "CUDA out of memory", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "CUDA out of memory", "limit": 10}, "output": [], "latency_ms": 721.32}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516089759, "payload": {"duration_ms": 722.72}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516089760, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "OutOfMemoryError", "limit": 10}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "OutOfMemoryError", "limit": 10}, "output": [], "latency_ms": 703.7}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516090464, "payload": {"duration_ms": 705.03}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "model.decide.start", "timestamp_ms": 1788516090466, "payload": {"step": 1}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.end", "timestamp_ms": 1788516090827, "payload": {"duration_ms": 19506.56}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516090829, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "concurrency", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "concurrency", "limit": 20}, "output": [], "latency_ms": 725.67}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516091556, "payload": {"duration_ms": 727.3}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516091557, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "request", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "request", "limit": 20}, "output": ["2026-08-27T09:30:02Z INFO request_success_rate=0.999", "2026-08-27T09:30:04Z DEBUG request trace sampled=false"], "latency_ms": 681.3}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516092240, "payload": {"duration_ms": 682.67}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516092240, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "version", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "version", "limit": 20}, "output": ["2026-08-27T09:30:03Z INFO deployment version=demo-2026.08.27"], "latency_ms": 782.33}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516093024, "payload": {"duration_ms": 783.67}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516093025, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "kv cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "kv cache", "limit": 20}, "output": [], "latency_ms": 794.29}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516093820, "payload": {"duration_ms": 795.62}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.start", "timestamp_ms": 1788516093821, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 687.31}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "mcp.tool_call.end", "timestamp_ms": 1788516094510, "payload": {"duration_ms": 688.68}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.start", "timestamp_ms": 1788516094511, "payload": {"step": 3}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "model.decide.end", "timestamp_ms": 1788516107786, "payload": {"duration_ms": 17320.84}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "structured_output.start", "timestamp_ms": 1788516107789, "payload": {}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "model.decide.end", "timestamp_ms": 1788516112184, "payload": {"duration_ms": 17673.58}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "structured_output.start", "timestamp_ms": 1788516112187, "payload": {}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "structured_output.end", "timestamp_ms": 1788516118247, "payload": {"duration_ms": 10458.54}}
+{"run_id": "1aedecc1-5240-4383-a131-875cb2da268c", "name": "agent.end", "timestamp_ms": 1788516118249, "payload": {"duration_ms": 32516.81, "steps": 2}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "agent.start", "timestamp_ms": 1788516118257, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "rag.retrieve.start", "timestamp_ms": 1788516118259, "payload": {"query": "指标看起来正常，需要继续收集证据。"}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "rag.retrieve.end", "timestamp_ms": 1788516118260, "payload": {"duration_ms": 1.0}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.start", "timestamp_ms": 1788516118268, "payload": {"step": 0}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.end", "timestamp_ms": 1788516121016, "payload": {"duration_ms": 2748.12}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516121017, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 896.46}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516121916, "payload": {"duration_ms": 898.13}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516121916, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 820.61}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516122738, "payload": {"duration_ms": 822.07}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516122739, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "oom", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "oom", "limit": 20}, "output": [], "latency_ms": 800.89}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516123542, "payload": {"duration_ms": 802.22}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516123542, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "cuda", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "cuda", "limit": 20}, "output": [], "latency_ms": 798.39}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516124342, "payload": {"duration_ms": 799.71}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.start", "timestamp_ms": 1788516124344, "payload": {"step": 1}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "structured_output.end", "timestamp_ms": 1788516127634, "payload": {"duration_ms": 15446.3}}
+{"run_id": "d9cc64f3-8cb6-4e5e-b367-abe454f1e26a", "name": "agent.end", "timestamp_ms": 1788516127635, "payload": {"duration_ms": 74175.43, "steps": 4}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "agent.start", "timestamp_ms": 1788516127640, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "rag.retrieve.start", "timestamp_ms": 1788516127641, "payload": {"query": "没有 OOM、延迟或缓存异常，请判断。"}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "rag.retrieve.end", "timestamp_ms": 1788516127642, "payload": {"duration_ms": 0.7}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "model.decide.start", "timestamp_ms": 1788516127647, "payload": {"step": 0}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "model.decide.end", "timestamp_ms": 1788516130514, "payload": {"duration_ms": 2866.51}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.start", "timestamp_ms": 1788516130517, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 785.09}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.end", "timestamp_ms": 1788516131303, "payload": {"duration_ms": 786.53}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.start", "timestamp_ms": 1788516131304, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "kv cache", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "kv cache", "limit": 20}, "output": [], "latency_ms": 750.72}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.end", "timestamp_ms": 1788516132057, "payload": {"duration_ms": 752.22}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.start", "timestamp_ms": 1788516132057, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 683.6}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.end", "timestamp_ms": 1788516132742, "payload": {"duration_ms": 685.0}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.start", "timestamp_ms": 1788516132743, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 742.26}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "mcp.tool_call.end", "timestamp_ms": 1788516133486, "payload": {"duration_ms": 743.54}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "model.decide.start", "timestamp_ms": 1788516133488, "payload": {"step": 1}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.end", "timestamp_ms": 1788516144447, "payload": {"duration_ms": 20103.29}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516144448, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "warn", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "warn", "limit": 20}, "output": [], "latency_ms": 771.56}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516145222, "payload": {"duration_ms": 773.5}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516145223, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "timeout", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "timeout", "limit": 20}, "output": [], "latency_ms": 681.44}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516145906, "payload": {"duration_ms": 682.93}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516145907, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "fail", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "fail", "limit": 20}, "output": [], "latency_ms": 711.61}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516146620, "payload": {"duration_ms": 713.01}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.start", "timestamp_ms": 1788516146620, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "exception", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "exception", "limit": 20}, "output": [], "latency_ms": 700.5}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "mcp.tool_call.end", "timestamp_ms": 1788516147322, "payload": {"duration_ms": 701.8}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.start", "timestamp_ms": 1788516147324, "payload": {"step": 2}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "model.decide.end", "timestamp_ms": 1788516151402, "payload": {"duration_ms": 17914.2}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "structured_output.start", "timestamp_ms": 1788516151404, "payload": {}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "structured_output.end", "timestamp_ms": 1788516156656, "payload": {"duration_ms": 5252.11}}
+{"run_id": "fe5bd699-f44f-4272-b8fc-bd3ca52b423d", "name": "agent.end", "timestamp_ms": 1788516156657, "payload": {"duration_ms": 29016.69, "steps": 2}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "agent.start", "timestamp_ms": 1788516156663, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "rag.retrieve.start", "timestamp_ms": 1788516156664, "payload": {"query": "健康检查正常但业务告警未知。"}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "rag.retrieve.end", "timestamp_ms": 1788516156664, "payload": {"duration_ms": 0.84}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.start", "timestamp_ms": 1788516156671, "payload": {"step": 0}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.end", "timestamp_ms": 1788516158720, "payload": {"duration_ms": 2049.62}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516158722, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 700.37}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516159425, "payload": {"duration_ms": 702.07}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516159425, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 745.99}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516160173, "payload": {"duration_ms": 748.04}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.start", "timestamp_ms": 1788516160175, "payload": {"step": 1}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "model.decide.end", "timestamp_ms": 1788516164411, "payload": {"duration_ms": 17087.67}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "structured_output.start", "timestamp_ms": 1788516164413, "payload": {}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.end", "timestamp_ms": 1788516169645, "payload": {"duration_ms": 9470.51}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516169647, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "timeout", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "timeout", "limit": 20}, "output": [], "latency_ms": 770.27}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516170419, "payload": {"duration_ms": 772.09}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516170419, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "warn", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "warn", "limit": 20}, "output": [], "latency_ms": 693.87}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516171115, "payload": {"duration_ms": 695.23}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516171115, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "evict", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "evict", "limit": 20}, "output": [], "latency_ms": 731.79}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516171848, "payload": {"duration_ms": 733.03}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.start", "timestamp_ms": 1788516171849, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "prefix", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "prefix", "limit": 20}, "output": [], "latency_ms": 726.29}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "mcp.tool_call.end", "timestamp_ms": 1788516172577, "payload": {"duration_ms": 727.81}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.start", "timestamp_ms": 1788516172578, "payload": {"step": 2}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "structured_output.end", "timestamp_ms": 1788516180934, "payload": {"duration_ms": 16521.21}}
+{"run_id": "a2374349-10d9-431a-821c-eacb91117d4e", "name": "agent.end", "timestamp_ms": 1788516180935, "payload": {"duration_ms": 62678.49, "steps": 3}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "agent.start", "timestamp_ms": 1788516180942, "payload": {"service_id": "demo-unknown"}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "rag.retrieve.start", "timestamp_ms": 1788516180943, "payload": {"query": "请不要修改参数，先输出当前证据。"}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "rag.retrieve.end", "timestamp_ms": 1788516180944, "payload": {"duration_ms": 0.72}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "model.decide.start", "timestamp_ms": 1788516180950, "payload": {"step": 0}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "model.decide.end", "timestamp_ms": 1788516183391, "payload": {"duration_ms": 2441.07}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.start", "timestamp_ms": 1788516183393, "payload": {"name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}}}
+{"event": "tool_execution", "name": "get_metrics_snapshot", "arguments": {"service_id": "demo-unknown"}, "output": {"service_id": "demo-unknown", "gpu_memory_utilization": 0.56, "waiting_requests": 2, "ttft_p95_ms": 210, "prefix_cache_hit_rate": 0.67, "request_success_rate": 0.999, "kv_cache_free_blocks": 700}, "latency_ms": 725.88}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.end", "timestamp_ms": 1788516184119, "payload": {"duration_ms": 727.29}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.start", "timestamp_ms": 1788516184121, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "OOM", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "OOM", "limit": 20}, "output": [], "latency_ms": 716.93}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.end", "timestamp_ms": 1788516184838, "payload": {"duration_ms": 718.27}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.start", "timestamp_ms": 1788516184839, "payload": {"name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}}}
+{"event": "tool_execution", "name": "search_logs", "arguments": {"service_id": "demo-unknown", "keyword": "error", "limit": 20}, "output": [], "latency_ms": 717.77}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "mcp.tool_call.end", "timestamp_ms": 1788516185559, "payload": {"duration_ms": 719.06}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "model.decide.start", "timestamp_ms": 1788516185560, "payload": {"step": 1}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "model.decide.end", "timestamp_ms": 1788516186257, "payload": {"duration_ms": 13679.56}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "structured_output.start", "timestamp_ms": 1788516186259, "payload": {}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "model.decide.end", "timestamp_ms": 1788516191255, "payload": {"duration_ms": 5694.88}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "structured_output.start", "timestamp_ms": 1788516191257, "payload": {}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "structured_output.end", "timestamp_ms": 1788516193097, "payload": {"duration_ms": 6837.33}}
+{"run_id": "6692512d-dcf4-472f-8751-8d502af4620c", "name": "agent.end", "timestamp_ms": 1788516193098, "payload": {"duration_ms": 36434.9, "steps": 3}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "structured_output.end", "timestamp_ms": 1788516201154, "payload": {"duration_ms": 9897.63}}
+{"run_id": "5b2f41f3-4828-4cd3-adfc-0769fe35ad23", "name": "agent.end", "timestamp_ms": 1788516201156, "payload": {"duration_ms": 20214.31, "steps": 2}}

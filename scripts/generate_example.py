@@ -1,234 +1,181 @@
+"""Render a saved online trace without loading models or calling APIs."""
+
 from __future__ import annotations
 
-"""Run one inspectable Hybrid RAG flow and render its trace as example.md.
-
-The retrieval stack is real (BGE embeddings, Chroma cosine search, and the
-configured Cross-Encoder). The model and MCP client are deterministic test
-doubles so this example is reproducible and never spends an online API key.
-"""
-
-import asyncio
+import argparse
+import hashlib
 import json
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from incident_agent.config import ROOT, settings
-from incident_agent.fixtures import load_metrics, search_logs
-from incident_agent.graph import DiagnosisEngine
-from incident_agent.models import ModelDecision
-from incident_agent.rag import build_retriever
-from incident_agent.schemas import IncidentReport, IncidentRequest, ToolCall
-from incident_agent.tracing import TraceRecorder, record_current_trace
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
-class ExampleTools:
-    def __init__(self) -> None:
-        self.calls: list[dict[str, Any]] = []
-
-    async def call_tool(self, name: str, arguments: dict[str, Any], timeout: float = 5.0) -> Any:
-        self.calls.append({"name": name, "arguments": dict(arguments), "timeout": timeout})
-        if name == "get_metrics_snapshot":
-            return load_metrics(arguments["service_id"])
-        return search_logs(arguments["service_id"], arguments["keyword"], arguments.get("limit", 20))
-
-    async def aclose(self) -> None:
-        return None
-
-
-def _context(request: IncidentRequest, docs: list[dict[str, Any]], tools: list[dict[str, Any]]) -> str:
-    return json.dumps(
-        {
-            "request": request.model_dump(mode="json"),
-            "runbook": docs,
-            "tool_results": tools,
-            "instruction": "先判断证据缺口，证据不足时选择一个只读 MCP 工具。",
-        },
-        ensure_ascii=False,
-        indent=2,
-    )
+def load_trace(path: Path, run_id: str | None = None) -> list[dict[str, Any]]:
+    records = [json.loads(line) for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
+    run_ids = {record["run_id"] for record in records if record.get("name") == "agent.start"}
+    if run_id is None:
+        if len(run_ids) != 1:
+            raise ValueError("Select --run-id: the trace must identify exactly one run")
+        run_id = next(iter(run_ids))
+    selected = [record for record in records if record.get("run_id") == run_id]
+    names = {record.get("name") for record in selected}
+    required = {"agent.start", "rag.hybrid", "rag.final_results", "llm.raw_request", "llm.raw_response", "mcp.tool_result", "llm.final_response", "agent.end"}
+    if not required.issubset(names):
+        raise ValueError(f"Incomplete trace: missing {sorted(required - names)}")
+    return selected
 
 
-class ExampleModel:
-    """Test-only online-model substitute that records OpenAI-shaped messages."""
-
-    async def decide(self, request, retrieved_docs, tool_results):
-        if not tool_results:
-            call = ToolCall(name="get_metrics_snapshot", arguments={"service_id": request.service_id})
-            response = {
-                "role": "assistant",
-                "content": "需要读取服务指标。",
-                "tool_calls": [{"name": call.name, "arguments": call.arguments}],
-            }
-        elif not any(item["name"] == "search_logs" for item in tool_results):
-            call = ToolCall(
-                name="search_logs",
-                arguments={"service_id": request.service_id, "keyword": "queue", "limit": 20},
-            )
-            response = {
-                "role": "assistant",
-                "content": "指标显示排队，需要核对日志。",
-                "tool_calls": [{"name": call.name, "arguments": call.arguments}],
-            }
-        else:
-            call = None
-            response = {"role": "assistant", "content": "指标和日志证据已足够。", "tool_calls": []}
-        messages = [
-            {"role": "system", "content": "你是 LLM serving SRE 诊断助手。只能调用只读工具。"},
-            {"role": "user", "content": _context(request, retrieved_docs, tool_results)},
-        ]
-        record_current_trace("llm.raw_request", {"phase": "tool_selection", "messages": messages})
-        record_current_trace("llm.raw_response", {"phase": "tool_selection", "message": response})
-        return ModelDecision(
-            tool_calls=[call] if call else [],
-            text=response["content"],
-            request_messages=messages,
-            response_message=response,
-        )
-
-    async def finalize(self, request, retrieved_docs, tool_results, draft_text=""):
-        messages = [
-            {"role": "system", "content": "只基于 runbook 和工具证据输出 IncidentReport JSON。"},
-            {
-                "role": "user",
-                "content": _context(request, retrieved_docs, tool_results)
-                + "\n模型草稿："
-                + draft_text,
-            },
-        ]
-        response = {
-            "incident_type": "high_ttft",
-            "severity": "medium",
-            "root_cause": "prefill backlog increased waiting time",
-            "evidence": [
-                {"source": "demo-high-ttft metrics", "detail": "waiting_requests=64, ttft_p95_ms=1850"},
-                {"source": "demo-high-ttft logs", "detail": "prefill backlog queue_time_ms=1700"},
-            ],
-            "recommended_actions": ["reduce admission pressure", "inspect prefill batching"],
-            "tools_used": [item["name"] for item in tool_results],
-            "confidence": 0.92,
-        }
-        record_current_trace("llm.raw_request", {"phase": "final_user_response", "messages": messages})
-        record_current_trace("llm.raw_response", {"phase": "final_user_response", "message": response})
-        return IncidentReport.model_validate(response)
+def payload_for(records: list[dict[str, Any]], name: str) -> dict[str, Any]:
+    return next(record["payload"] for record in records if record["name"] == name)
 
 
-def _short(value: Any) -> str:
+def summarize_trace(records: list[dict[str, Any]]) -> dict[str, Any]:
+    request = payload_for(records, "agent.start")["request"]
+    hybrid = payload_for(records, "rag.hybrid")
+    docs = payload_for(records, "rag.final_results")["results"]
+    model_names = sorted({
+        record["payload"]["message"]["response_metadata"]["model_name"]
+        for record in records if record["name"] == "llm.raw_response"
+        and record["payload"]["message"].get("response_metadata", {}).get("model_name")
+    })
+    tools = [record["payload"] for record in records if record["name"] == "mcp.tool_result"]
+    arguments_valid = bool(tools)
+    for tool in tools:
+        args = tool["arguments"]
+        arguments_valid &= args.get("service_id") == request["service_id"]
+        arguments_valid &= tool["name"] in {"get_metrics_snapshot", "search_logs"}
+        if tool["name"] == "search_logs":
+            arguments_valid &= isinstance(args.get("keyword"), str) and 1 <= len(args["keyword"]) <= 120
+            arguments_valid &= isinstance(args.get("limit"), int) and 1 <= args["limit"] <= 50
+    checks = {
+        "hybrid_trace_present": True,
+        "final_top_three": len(docs) == 3 and hybrid["final_results"] == docs,
+        "cuda_recorded": hybrid.get("device") == "cuda",
+        "deepseek_response_metadata_present": bool(model_names) and all("deepseek" in name for name in model_names),
+        "mcp_arguments_valid": bool(arguments_valid),
+        "final_report_recorded": bool(payload_for(records, "llm.final_response")["response"]),
+    }
+    return {
+        "run_id": records[0]["run_id"],
+        "started_at_utc": datetime.fromtimestamp(records[0]["timestamp_ms"] / 1000, timezone.utc).isoformat(),
+        "verification_mode": "saved_online_trace_audit",
+        "new_online_requests": 0,
+        "sample_count": 1,
+        "request": request,
+        "models": {"llm": model_names, "embedding": hybrid["embedding_model"], "reranker": hybrid["reranker_model"], "device": hybrid["device"]},
+        "checks": checks,
+        "all_checks_passed": all(checks.values()),
+        "duration_ms": payload_for(records, "agent.end")["duration_ms"],
+        "tool_call_count": len(tools),
+        "tool_calls": tools,
+        "final_results": docs,
+        "report": payload_for(records, "llm.final_response")["response"],
+        "limitations": [
+            "One saved online run, not a new 30-case evaluation.",
+            "MCP reads fixture metrics/logs, not a production cluster.",
+            "The trace stores reranker scores only for final Top-3, not all candidates.",
+            "The final llm.raw_response is a parsed IncidentReport, not a raw HTTP response.",
+            "Tool results enter the next user JSON context; the logged tool_message is not a native API ToolMessage.",
+        ],
+    }
+
+
+def json_block(value: Any) -> list[str]:
+    return ["```json", json.dumps(value, ensure_ascii=False, indent=2), "```", ""]
+
+
+def _cell(value: Any) -> str:
+    if value is None:
+        return "-"
+    if isinstance(value, float):
+        return f"{value:.6f}"
     return str(value).replace("|", "\\|").replace("\n", " ")
 
 
-def _candidate_table(title: str, items: list[dict[str, Any]], score_key: str, rank_key: str) -> list[str]:
-    lines = [f"### {title}", "", "| rank | chunk_id | source | title | score |", "| ---: | --- | --- | --- | ---: |"]
-    for item in items:
-        lines.append(
-            f"| {item.get(rank_key, '')} | {_short(item.get('chunk_id', ''))} | {_short(item.get('source', ''))} | "
-            f"{_short(item.get('title', ''))} | {item.get(score_key, '')} |"
-        )
+def candidate_table(title: str, items: list[dict[str, Any]]) -> list[str]:
+    fields = ("chunk_id", "bm25_rank", "bm25_score", "dense_rank", "dense_score", "rrf_rank", "rrf_score", "reranker_rank", "reranker_score")
+    lines = [f"### {title}", "", "| chunk_id | BM rank | BM score | Dense rank | Cosine | RRF rank | RRF score | Cross rank | Cross score |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
+    lines.extend("| " + " | ".join(_cell(item.get(field)) for field in fields) + " |" for item in items)
     return lines + [""]
 
 
-def _full_results(items: list[dict[str, Any]]) -> list[str]:
-    lines = ["### 最终 Top-3", ""]
-    for index, item in enumerate(items, 1):
-        lines.extend(
-            [
-                f"#### {index}. {item.get('title')} ({item.get('chunk_id')})",
-                f"- source: `{item.get('source')}`",
-                f"- ranks: BM25={item.get('bm25_rank')}, Dense={item.get('dense_rank')}, RRF={item.get('rrf_rank')}, Reranker={item.get('reranker_rank')}",
-                f"- scores: BM25={item.get('bm25_score')}, Dense={item.get('dense_score')}, RRF={item.get('rrf_score')}, Reranker={item.get('reranker_score')}",
-                "- metadata:",
-                "```json",
-                json.dumps(item.get("metadata", {}), ensure_ascii=False, indent=2),
-                "```",
-                "- content:",
-                "```text",
-                str(item.get("text", "")),
-                "```",
-                "",
-            ]
-        )
-    return lines
-
-
-async def main() -> None:
-    trace_path = ROOT / "data" / "example_trace.jsonl"
-    trace_path.unlink(missing_ok=True)
-    tracer = TraceRecorder(trace_path)
-    request = IncidentRequest(
-        service_id="demo-high-ttft",
-        symptom="vLLM 请求排队增长，TTFT 和 P99 延迟升高，怀疑 prefill backlog",
-    )
-    retriever = build_retriever()
-    # ``build_retriever`` is also used outside the graph, so bind the graph's
-    # recorder explicitly for this inspectable run.
-    retriever.tracer = tracer
-    tools = ExampleTools()
-    engine = DiagnosisEngine(retriever=retriever, model=ExampleModel(), tool_client=tools, tracer=tracer)
-    report = await engine.diagnose(request)
-
-    records = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
-    by_name: dict[str, list[dict[str, Any]]] = {}
-    for record in records:
-        by_name.setdefault(record["name"], []).append(record)
-    hybrid = by_name["rag.hybrid"][-1]["payload"]
-    llm_requests = by_name.get("llm.request", [])
-    raw_requests = by_name.get("llm.raw_request", [])
-    raw_responses = by_name.get("llm.raw_response", [])
-    tool_results = by_name.get("mcp.tool_result", [])
-
+def render_example(trace_path: Path, output: Path, run_id: str | None = None) -> dict[str, Any]:
+    records = load_trace(trace_path, run_id)
+    summary = summarize_trace(records)
+    if not summary["all_checks_passed"]:
+        raise ValueError(f"Trace checks failed: {summary['checks']}")
+    hybrid = payload_for(records, "rag.hybrid")
+    trace_link = Path(os.path.relpath(trace_path, output.parent)).as_posix()
     lines = [
-        "# Representative Hybrid RAG Trace",
+        "# Hybrid RAG 真实在线流程示例",
         "",
-        "> This is a real local Hybrid RAG run: BGE embedding + Chroma cosine retrieval + "
-        "`BAAI/bge-reranker-v2-m3` on CUDA. The DeepSeek model and MCP client are deterministic "
-        "test doubles, explicitly shown below, so no online API result is being represented as real.",
+        "本页从已保存的真实运行日志整理：CUDA BGE + Chroma + Cross-Encoder，DeepSeek 在线响应，官方 MCP SDK 调用本地 fixture 服务。没有重新请求模型，也没有使用测试替身生成本页的诊断。",
         "",
-        "## 1. Original User Input",
+        f"- Run ID：`{summary['run_id']}`",
+        f"- 原始运行时间：`{summary['started_at_utc']}`",
+        f"- 原始日志：[{trace_path.name}]({trace_link})（完整内容与精度以 JSONL 为准）",
+        f"- SHA-256：`{hashlib.sha256(trace_path.read_bytes()).hexdigest()}`",
+        f"- 在线模型：`{', '.join(summary['models']['llm'])}`；总耗时：{summary['duration_ms'] / 1000:.2f} 秒；工具调用：{summary['tool_call_count']} 次",
         "",
-        "```json",
-        json.dumps(request.model_dump(mode="json"), ensure_ascii=False, indent=2),
-        "```",
+        "日志边界：这里只保存了最终 Top-3 的 Cross-Encoder 分数；其余候选的精排分数未记录。最终结构化响应保存的是解析后的 IncidentReport，未保留该次 HTTP 原始响应。工具结果通过下一轮 user JSON context 送入模型，日志中的 tool_message 是展示对象，不是实际发送的原生 ToolMessage。",
         "",
-        "## 2. Hybrid Retrieval",
+        "## 用户输入",
         "",
-        f"- device: `{hybrid['device']}`",
-        f"- embedding model: `{hybrid['embedding_model']}`",
-        f"- reranker model: `{hybrid['reranker_model']}`",
-        f"- counts: BM25={hybrid['bm25_count']}, Dense={hybrid['dense_count']}, dedup={hybrid['dedup_count']}, RRF={hybrid['fusion_count']}, final={hybrid['rerank_count']}",
-        f"- latency ms: BM25={hybrid['bm25_latency_ms']}, Dense={hybrid['dense_latency_ms']}, fusion={hybrid['fusion_latency_ms']}, reranker={hybrid['rerank_latency_ms']}",
-        "",
-    ]
-    lines += _candidate_table("BM25 Top-20", hybrid["bm25_results"], "bm25_score", "bm25_rank")
-    lines += _candidate_table("Dense Cosine Top-20", hybrid["dense_results"], "dense_score", "dense_rank")
-    lines += _candidate_table("去重后的 RRF 候选", hybrid["rrf_results"], "rrf_score", "rrf_rank")
-    lines += _full_results(hybrid["final_results"])
+    ] + json_block(summary["request"])
     lines += [
-        "## 3. RAG Context Sent to the Model",
+        "## 检索过程",
         "",
-        "下面是发送给模型的完整 user message（包含请求、最终 Top-3 runbook 和当前工具结果）。",
+        f"- Embedding：`{hybrid['embedding_model']}`；Reranker：`{hybrid['reranker_model']}`；Device：`{hybrid['device']}`",
+        f"- 候选数：BM25={hybrid['bm25_count']}，Dense={hybrid['dense_count']}，去重={hybrid['dedup_count']}，RRF={hybrid['fusion_count']}，最终={hybrid['rerank_count']}",
+        f"- 耗时（ms）：BM25={hybrid['bm25_latency_ms']}，Dense={hybrid['dense_latency_ms']}，RRF={hybrid['fusion_latency_ms']}，Cross-Encoder={hybrid['rerank_latency_ms']}",
+        "- 表格中的 `-` 表示该阶段未召回或日志没有此项，不代表零分。",
         "",
     ]
-    for index, event in enumerate(llm_requests, 1):
-        lines.extend([f"### Graph LLM request {index}", "", "```json", json.dumps(event["payload"], ensure_ascii=False, indent=2), "```", ""])
-    lines += ["## 4. Raw Model Messages and Tool Loop", ""]
-    for index, event in enumerate(raw_requests, 1):
-        lines.extend([f"### Raw request {index}", "", "```json", json.dumps(event["payload"], ensure_ascii=False, indent=2), "```", ""])
-        if index <= len(raw_responses):
-            lines.extend([f"### Raw response {index}", "", "```json", json.dumps(raw_responses[index - 1]["payload"], ensure_ascii=False, indent=2), "```", ""])
-    for index, event in enumerate(tool_results, 1):
-        lines.extend([f"### MCP tool message {index}", "", "```json", json.dumps(event["payload"], ensure_ascii=False, indent=2), "```", ""])
-    lines += [
-        "## 5. Final User Report",
-        "",
-        "```json",
-        json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),
-        "```",
-        "",
-        f"Trace source: `{trace_path.relative_to(ROOT)}`",
-        f"Configuration: final_top_k={settings.rag_final_top_k}, bm25_top_k={settings.rag_bm25_top_k}, dense_top_k={settings.rag_dense_top_k}, strict={settings.rag_strict}",
-    ]
-    (ROOT / "example.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(json.dumps({"trace": str(trace_path), "example": str(ROOT / "example.md"), "final": report.model_dump(mode="json")}, ensure_ascii=False))
+    for title, field in (("BM25 候选", "bm25_results"), ("Dense 候选", "dense_results"), ("RRF 融合", "rrf_results"), ("Cross-Encoder 最终 Top-3", "final_results")):
+        lines += candidate_table(title, hybrid[field])
+    for doc in hybrid["final_results"]:
+        lines += [f"### {doc['title']} / {doc['section']}", ""] + json_block(doc)
+    lines += ["## LLM 与工具调用时间线", "", "按原始事件顺序展开。每轮请求的 JSON content 已格式化，便于查看实际 RAG context 和工具证据；原始序列化消息保留在 JSONL 中。", ""]
+    round_index = 0
+    for record in records:
+        name, payload = record["name"], record["payload"]
+        if name == "llm.raw_request":
+            round_index += 1
+            lines += [f"### 第 {round_index} 轮请求：{payload['phase']}", ""]
+            for message in payload["messages"]:
+                role = message.get("role", message.get("type", "unknown"))
+                lines += [f"#### {role}", ""]
+                content = message.get("content", "")
+                try:
+                    decoded = json.loads(content)
+                except (TypeError, json.JSONDecodeError):
+                    lines += ["```text", str(content), "```", ""]
+                else:
+                    lines += json_block(decoded)
+        elif name == "llm.raw_response":
+            label = "结构化解析结果" if payload["phase"] == "final_user_response" else "原始模型消息（含工具调用）"
+            lines += [f"### 第 {round_index} 轮：{label}", ""] + json_block(payload["message"])
+        elif name == "mcp.tool_result":
+            lines += [f"### MCP 返回：{payload['name']}", ""] + json_block(payload)
+    lines += ["## 最终用户报告", ""] + json_block(summary["report"])
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines), encoding="utf-8")
+    return summary
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--trace", type=Path, default=ROOT / "reports/traces/online_smoke.jsonl")
+    parser.add_argument("--output", type=Path, default=ROOT / "example.md")
+    parser.add_argument("--run-id")
+    args = parser.parse_args()
+    summary = render_example(args.trace.resolve(), args.output.resolve(), args.run_id)
+    print(json.dumps({"run_id": summary["run_id"], "all_checks_passed": summary["all_checks_passed"], "output": str(args.output)}))
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

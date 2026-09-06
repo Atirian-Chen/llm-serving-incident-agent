@@ -6,6 +6,8 @@ __pycache__/
 .venv-standard/
 .runtime/
 .pytest-tmp/
+.pytest-tmp*/
+.tmp/
 .env
 config/llm.toml
 .chroma/
