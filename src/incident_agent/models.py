@@ -124,6 +124,27 @@ class DeepSeekModel:
         return data
 
     @staticmethod
+    def _runbook_context(retrieved_docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Project ranked evidence for the LLM without mutating retrieval telemetry."""
+        runbook = []
+        for doc in retrieved_docs:
+            entry = {
+                key: doc[key]
+                for key in ("chunk_id", "text", "source", "title", "section")
+                if key in doc
+            }
+            metadata = doc.get("metadata") or {}
+            useful_metadata = {
+                key: metadata[key]
+                for key in ("framework", "version", "applicability", "updated_at")
+                if key in metadata and metadata[key] is not None
+            }
+            if useful_metadata:
+                entry["metadata"] = useful_metadata
+            runbook.append(entry)
+        return runbook
+
+    @staticmethod
     def _json_context(
         request: IncidentRequest,
         retrieved_docs: list[dict[str, Any]],
@@ -133,7 +154,7 @@ class DeepSeekModel:
         return json.dumps(
             {
                 "request": request.model_dump(),
-                "runbook": retrieved_docs,
+                "runbook": DeepSeekModel._runbook_context(retrieved_docs),
                 "tool_results": tool_results,
                 "instruction": instruction,
             },

@@ -66,6 +66,7 @@ def test_online_example_uses_saved_messages_and_validates_tool_arguments(tmp_pat
     output = tmp_path / "example.md"
     module.render_example(trace, output)
     document = output.read_text(encoding="utf-8")
+    assert "历史请求可能仍含上述检索字段" in document
     assert document.index("MCP 返回") < document.index("第 2 轮请求")
     assert summary["request"]["symptom"] in document
     assert summary["report"]["root_cause"] in document

@@ -104,6 +104,9 @@ RRF 和 Cross-Encoder 五条路径。
 每次运行会写入 `data/traces.jsonl`。日志保留原始请求、BM25/Dense/RRF 候选、最终 Top-3
 的 reranker 分数、LLM 请求消息与工具调用响应、MCP 参数和结果、最终解析后的报告。
 当前日志未记录所有候选的精排分数或最终 HTTP 原始响应；`tool_message` 是展示对象，实际工具结果通过下一轮 user JSON context 送入模型。
+
+发给 LLM 的 runbook 与完整检索日志分开：保留精排后的 Top-3 顺序、`chunk_id`、`text`、`source`、`title`、`section`，以及存在时的 `framework`、`version`、`applicability`、`updated_at` 元数据。所有工具决策轮次和最终报告请求均不携带原始检索分数、排名或重复元数据；检索返回值和日志仍完整保留这些字段。Top-k 仍由现有 `RAG_FINAL_TOP_K` 配置控制，默认 3。
+
 `example.md` 从真实在线日志快照生成。快照保存在 `reports/traces/`，无需在线调用即可查看与重建。
 
 运行 30 个固定案例（需要在线 DeepSeek API Key）：
